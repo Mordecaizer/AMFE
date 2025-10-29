@@ -9,7 +9,9 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "@handsontable/react": "^16.1.1",
     "axios": "^0.21.1",
+    "handsontable": "^16.1.1",
     "node-libs-browser": "^2.2.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

@@ -69,8 +69,62 @@ export const deleteMatrix = async (id) => {
 };
 
 // Function to download an AMFE matrix as an Excel file
-export const downloadMatrix = async (id) => {
-    const response = await api.get(`/matrices/${id}/download`, { responseType: 'blob' });
+export const downloadMatrixExcel = async (id, filename) => {
+    const response = await api.get(`/matrices/${id}/export`, { responseType: 'blob' });
+    
+    // Crear un link temporal para descargar el archivo
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename || `AMFE_Matrix_${id}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    
+    return response.data;
+};
+
+// Function to get a specific matrix by ID
+export const getMatrix = async (id) => {
+    const response = await api.get(`/matrices/${id}`);
+    return response.data;
+};
+
+// ========================================
+// MATRICES MODULARES
+// ========================================
+
+// Function to create a new modular AMFE matrix
+export const createModularMatrix = async (matrixData) => {
+    const response = await api.post('/matrices/modular', matrixData);
+    return response.data;
+};
+
+// Function to get a specific modular matrix by ID
+export const getModularMatrix = async (id) => {
+    const response = await api.get(`/matrices/modular/${id}`);
+    return response.data;
+};
+
+// Function to edit an existing modular AMFE matrix
+export const editModularMatrix = async (id, matrixData) => {
+    const response = await api.put(`/matrices/modular/${id}`, matrixData);
+    return response.data;
+};
+
+// Function to download a modular AMFE matrix as an Excel file
+export const downloadModularMatrixExcel = async (id, filename) => {
+    const response = await api.get(`/matrices/modular/${id}/export`, { responseType: 'blob' });
+    
+    // Crear un link temporal para descargar el archivo
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename || `AMFE_Modular_Matrix_${id}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    
     return response.data;
 };
 

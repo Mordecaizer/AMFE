@@ -1,0 +1,434 @@
+.matrix-form-modular {
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.matrix-form-modular .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.matrix-form-modular h1 {
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.matrix-form-modular h2 {
+    color: #2c3e50;
+    font-size: 1.4em;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 8px;
+}
+
+.loading {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.2em;
+    color: #666;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    border: 1px solid #f5c6cb;
+}
+
+/* Secciones del formulario */
+.form-section {
+    background: white;
+    padding: 25px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="number"],
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+/* Módulos de Proceso */
+.proceso-module {
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.module-header {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #C6E0B4;
+}
+
+.proceso-nombre {
+    flex: 1;
+    font-size: 1.2em;
+    font-weight: bold;
+    border: 2px dashed rgba(44, 62, 80, 0.3);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.5);
+    color: #2c3e50;
+    padding: 8px 12px;
+    transition: all 0.3s;
+}
+
+.proceso-nombre:focus {
+    outline: none;
+    border-color: #2c3e50;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.proceso-nombre::placeholder {
+    color: rgba(44, 62, 80, 0.5);
+}
+
+.module-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.module-actions input[type="color"] {
+    width: 40px;
+    height: 35px;
+    border: 2px solid white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Módulos de Subproceso */
+.subproceso-module {
+    margin: 20px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-left: 4px solid #3498db;
+    border-radius: 4px;
+}
+
+.submodule-header {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.submodule-label {
+    font-weight: bold;
+    color: #2c3e50;
+    white-space: nowrap;
+}
+
+.subproceso-nombre {
+    flex: 1;
+    font-size: 1.1em;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Módulos de Falla */
+.falla-module {
+    background: white;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+}
+
+.falla-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+.falla-header h4 {
+    color: #34495e;
+    margin: 0;
+}
+
+/* Sección de Elementos (Efectos, Causas, Barreras, Acciones) */
+.elementos-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.elementos-section label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.elemento-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.elemento-item input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Evaluación */
+.evaluacion-section {
+    background-color: #e8f4f8;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.evaluacion-section h5 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.evaluacion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.rpn-display {
+    background-color: #fff3cd !important;
+    font-weight: bold;
+    color: #856404;
+    text-align: center;
+}
+
+/* Botones */
+.btn-add,
+.btn-add-medium,
+.btn-add-small {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.btn-add:hover,
+.btn-add-medium:hover,
+.btn-add-small:hover {
+    background-color: #229954;
+}
+
+.btn-add-medium {
+    width: 100%;
+    margin-top: 15px;
+    background-color: #3498db;
+}
+
+.btn-add-medium:hover {
+    background-color: #2980b9;
+}
+
+.btn-add-small {
+    padding: 6px 12px;
+    font-size: 13px;
+    background-color: #5dade2;
+}
+
+.btn-add-small:hover {
+    background-color: #3498db;
+}
+
+.btn-delete,
+.btn-delete-small {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-delete:hover,
+.btn-delete-small:hover {
+    background-color: #c0392b;
+}
+
+.btn-delete-small {
+    padding: 4px 10px;
+    font-size: 14px;
+}
+
+.btn-remove {
+    background-color: #e67e22;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.btn-remove:hover {
+    background-color: #d35400;
+}
+
+/* Botones de acción del formulario */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-cancel {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: #27ae60;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(46, 204, 113, 0.3);
+}
+
+.btn-secondary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+}
+
+.btn-cancel {
+    background-color: #95a5a6;
+    color: white;
+}
+
+.btn-cancel:hover:not(:disabled) {
+    background-color: #7f8c8d;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-cancel:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .matrix-form-modular .container {
+        padding: 10px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .evaluacion-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .module-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .proceso-nombre {
+        margin-bottom: 10px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-cancel {
+        width: 100%;
+    }
+}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { getMatrices, deleteMatrix } from '../../services/api';
+import { getMatrices, deleteMatrix, downloadMatrixExcel, downloadModularMatrixExcel } from '../../services/api';
 import Header from '../Header';
 
 const MatrixList = () => {
@@ -86,6 +86,24 @@ const MatrixList = () => {
         return 'Bajo';
     };
 
+    const handleDownloadExcel = async (matrix) => {
+        try {
+            const isModular = matrix.data?.type === 'modular';
+            const filename = `AMFE_${isModular ? 'Modular_' : ''}${matrix.name.replace(/ /g, '_')}_${matrix.id}.xlsx`;
+            
+            if (isModular) {
+                await downloadModularMatrixExcel(matrix.id, filename);
+            } else {
+                await downloadMatrixExcel(matrix.id, filename);
+            }
+        } catch (err) {
+            console.error('Error downloading matrix:', err);
+            if (isMountedRef.current) {
+                setError('Error al descargar la matriz');
+            }
+        }
+    };
+
     if (loading) {
         return (
             <div className="main-content">
@@ -127,13 +145,24 @@ const MatrixList = () => {
                                 Total: {matrices.length} matrices
                             </h2>
                         </div>
-                        <Link to="/matrices/new" className="btn btn-primary">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                            Nueva Matriz
-                        </Link>
+                        <div style={{ display: 'flex', gap: '1rem' }}>
+                            <Link to="/matrices/modular" className="btn btn-success">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <rect x="3" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="14" width="7" height="7"></rect>
+                                    <rect x="3" y="14" width="7" height="7"></rect>
+                                </svg>
+                                Nueva Matriz Modular
+                            </Link>
+                            <Link to="/matrices/advanced" className="btn btn-primary">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                Nueva Matriz Handsontable
+                            </Link>
+                        </div>
                     </div>
 
                     {matrices.length === 0 ? (
@@ -149,15 +178,26 @@ const MatrixList = () => {
                                 No hay matrices
                             </h3>
                             <p style={{ color: 'var(--gray-600)', marginBottom: '1rem' }}>
-                                Comienza creando tu primera matriz AMFE
+                                Comienza creando tu primera matriz AMFE - Elige el tipo que prefieras
                             </p>
-                            <Link to="/matrices/new" className="btn btn-primary">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
-                                Crear Primera Matriz
-                            </Link>
+                            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                                <Link to="/matrices/modular" className="btn btn-success">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <rect x="3" y="3" width="7" height="7"></rect>
+                                        <rect x="14" y="3" width="7" height="7"></rect>
+                                        <rect x="14" y="14" width="7" height="7"></rect>
+                                        <rect x="3" y="14" width="7" height="7"></rect>
+                                    </svg>
+                                    Matriz Modular
+                                </Link>
+                                <Link to="/matrices/advanced" className="btn btn-primary">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    Matriz Handsontable
+                                </Link>
+                            </div>
                         </div>
                     ) : (
                         <div className="table-container">
@@ -267,7 +307,7 @@ const MatrixList = () => {
                                                         </svg>
                                                     </Link>
                                                     <Link 
-                                                        to={`/matrices/${matrix.id}/edit`} 
+                                                        to={matrix.data?.type === 'modular' ? `/matrices/modular/${matrix.id}` : `/matrices/advanced/${matrix.id}`}
                                                         className="btn btn-sm btn-secondary"
                                                         title="Editar"
                                                     >
@@ -276,6 +316,17 @@ const MatrixList = () => {
                                                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                                         </svg>
                                                     </Link>
+                                                    <button
+                                                        onClick={() => handleDownloadExcel(matrix)}
+                                                        className="btn btn-sm btn-success"
+                                                        title="Descargar Excel"
+                                                    >
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                                            <polyline points="7 10 12 15 17 10"></polyline>
+                                                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                                                        </svg>
+                                                    </button>
                                                     <button 
                                                         onClick={() => handleDelete(matrix.id)}
                                                         className={`btn btn-sm ${deleteConfirm === matrix.id ? 'btn-danger' : 'btn-secondary'}`}

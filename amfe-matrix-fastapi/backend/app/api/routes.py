@@ -1,15 +1,19 @@
 from fastapi import APIRouter, HTTPException, Depends
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from typing import List
-from app.schemas import UserCreate, UserLogin, User, Token, Matrix, MatrixCreate, MatrixUpdate
+from app.schemas import UserCreate, UserLogin, User, Token, Matrix, MatrixCreate, MatrixUpdate, MatrixModularCreate, MatrixModular
 from app.models import User as UserModel, AMFEMatrix
 from app.services.auth_service import (
     register_user, verify_user, get_user, test_password_hash, 
     create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES,
     get_current_user, get_current_admin_user
 )
-from app.services.matrix_service import get_matrices, get_matrix, create_matrix, update_matrix, delete_matrix
+from app.services.matrix_service import (
+    get_matrices, get_matrix, create_matrix, update_matrix, 
+    delete_matrix, export_matrix_to_excel, export_modular_matrix_to_excel
+)
 from app.database import get_db
 
 router = APIRouter()
@@ -142,3 +146,120 @@ async def delete_existing_matrix(
     if not success:
         raise HTTPException(status_code=404, detail="Matrix not found")
     return {"message": "Matrix deleted successfully"}
+
+@router.get("/matrices/{matrix_id}/export")
+async def export_matrix(
+    matrix_id: int,
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
+):
+    """Exportar una matriz AMFE a Excel"""
+    db_matrix = get_matrix(db, matrix_id=matrix_id)
+    if db_matrix is None:
+        raise HTTPException(status_code=404, detail="Matrix not found")
+    
+    excel_file = export_matrix_to_excel(db_matrix)
+    
+    filename = f"AMFE_{db_matrix.name.replace(' ', '_')}_{db_matrix.id}.xlsx"
+    
+    return StreamingResponse(
+        excel_file,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
+
+# ========================================
+# ENDPOINTS PARA MATRICES MODULARES
+# ========================================
+
+@router.post("/matrices/modular", response_model=MatrixModular)
+async def create_modular_matrix(
+    matrix: MatrixModularCreate,
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
+):
+    """Crear una nueva matriz AMFE modular"""
+    # Convertir el objeto Pydantic a dict para almacenar en JSON
+    matrix_data = matrix.data.dict()
+    
+    db_matrix = AMFEMatrix(
+        name=matrix.name,
+        description=matrix.description,
+        data={"type": "modular", **matrix_data},  # Marcar como modular
+        created_by=current_user.id
+    )
+    db.add(db_matrix)
+    db.commit()
+    db.refresh(db_matrix)
+    
+    return db_matrix
+
+@router.get("/matrices/modular/{matrix_id}", response_model=MatrixModular)
+async def read_modular_matrix(
+    matrix_id: int,
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
+):
+    """Obtener una matriz modular específica"""
+    db_matrix = get_matrix(db, matrix_id=matrix_id)
+    if db_matrix is None:
+        raise HTTPException(status_code=404, detail="Matrix not found")
+    
+    # Verificar que sea una matriz modular
+    if db_matrix.data.get('type') != 'modular':
+        raise HTTPException(status_code=400, detail="This is not a modular matrix")
+    
+    return db_matrix
+
+@router.put("/matrices/modular/{matrix_id}", response_model=MatrixModular)
+async def update_modular_matrix(
+    matrix_id: int,
+    matrix: MatrixModularCreate,
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
+):
+    """Actualizar una matriz modular existente"""
+    db_matrix = get_matrix(db, matrix_id=matrix_id)
+    if db_matrix is None:
+        raise HTTPException(status_code=404, detail="Matrix not found")
+    
+    # Verificar que sea una matriz modular
+    if db_matrix.data.get('type') != 'modular':
+        raise HTTPException(status_code=400, detail="This is not a modular matrix")
+    
+    # Actualizar datos
+    matrix_data = matrix.data.dict()
+    db_matrix.name = matrix.name
+    db_matrix.description = matrix.description
+    db_matrix.data = {"type": "modular", **matrix_data}
+    
+    db.commit()
+    db.refresh(db_matrix)
+    
+    return db_matrix
+
+@router.get("/matrices/modular/{matrix_id}/export")
+async def export_modular_matrix(
+    matrix_id: int,
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
+):
+    """Exportar una matriz AMFE modular a Excel con formato del hospital"""
+    db_matrix = get_matrix(db, matrix_id=matrix_id)
+    if db_matrix is None:
+        raise HTTPException(status_code=404, detail="Matrix not found")
+    
+    # Verificar que sea una matriz modular
+    if db_matrix.data.get('type') != 'modular':
+        raise HTTPException(status_code=400, detail="This is not a modular matrix")
+    
+    excel_file = export_modular_matrix_to_excel(db_matrix)
+    
+    filename = f"AMFE_Modular_{db_matrix.name.replace(' ', '_')}_{db_matrix.id}.xlsx"
+    
+    return StreamingResponse(
+        excel_file,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )

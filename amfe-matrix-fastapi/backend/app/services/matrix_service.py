@@ -2,6 +2,11 @@ from sqlalchemy.orm import Session
 from app.models import AMFEMatrix, User
 from app.schemas import MatrixCreate
 from typing import List
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+from io import BytesIO
+from datetime import datetime
 
 def get_matrices(db: Session, skip: int = 0, limit: int = 100) -> List[AMFEMatrix]:
     """Obtener todas las matrices AMFE"""
@@ -43,3 +48,881 @@ def delete_matrix(db: Session, matrix_id: int) -> bool:
         db.commit()
         return True
     return False
+
+def export_matrix_to_excel(matrix: AMFEMatrix) -> BytesIO:
+    """Exportar una matriz AMFE a formato Excel con estructura profesional"""
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "AMFE"
+    
+    # Estilos
+    title_font = Font(bold=True, size=11, name='Arial')
+    title_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    
+    header_fill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
+    header_font = Font(bold=True, size=9, name='Arial')
+    header_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    
+    proceso_fill = PatternFill(start_color="C6E0B4", end_color="C6E0B4", fill_type="solid")
+    
+    cell_font = Font(size=9, name='Arial')
+    cell_alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
+    center_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    
+    border_thin = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+    
+    # Obtener datos
+    data = matrix.data
+    header = data.get('header', {})
+    table_data = data.get('tableData', [])
+    
+    current_row = 1
+    
+    # FILA 1: Fundación (A1:R1)
+    ws.merge_cells(f'A{current_row}:R{current_row}')
+    cell = ws[f'A{current_row}']
+    cell.value = header.get('fundacion', 'Fundación Clínica Infantil Club Noel')
+    cell.font = title_font
+    cell.alignment = title_alignment
+    cell.border = border_thin
+    current_row += 1
+    
+    # FILA 2: Título y código
+    ws.merge_cells(f'A{current_row}:J{current_row}')
+    ws[f'A{current_row}'] = 'Análisis de Modo de Fallos y Efectos (AMFE) de Equipos Biomédicos'
+    ws[f'A{current_row}'].font = Font(bold=True, size=10, name='Arial')
+    ws[f'A{current_row}'].alignment = center_alignment
+    ws[f'A{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'K{current_row}:L{current_row}')
+    ws[f'K{current_row}'] = 'CÓDIGO:'
+    ws[f'K{current_row}'].font = Font(bold=True, size=8, name='Arial')
+    ws[f'K{current_row}'].alignment = center_alignment
+    ws[f'K{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'M{current_row}:N{current_row}')
+    ws[f'M{current_row}'] = header.get('codigo', '')
+    ws[f'M{current_row}'].font = cell_font
+    ws[f'M{current_row}'].alignment = center_alignment
+    ws[f'M{current_row}'].border = border_thin
+    
+    ws[f'O{current_row}'] = 'PAGINA'
+    ws[f'O{current_row}'].font = Font(bold=True, size=8, name='Arial')
+    ws[f'O{current_row}'].alignment = center_alignment
+    ws[f'O{current_row}'].border = border_thin
+    
+    ws[f'P{current_row}'] = header.get('pagina', '1')
+    ws[f'P{current_row}'].font = cell_font
+    ws[f'P{current_row}'].alignment = center_alignment
+    ws[f'P{current_row}'].border = border_thin
+    
+    ws[f'Q{current_row}'] = 'DE'
+    ws[f'Q{current_row}'].font = Font(bold=True, size=8, name='Arial')
+    ws[f'Q{current_row}'].alignment = center_alignment
+    ws[f'Q{current_row}'].border = border_thin
+    
+    ws[f'R{current_row}'] = header.get('año', '')
+    ws[f'R{current_row}'].font = cell_font
+    ws[f'R{current_row}'].alignment = center_alignment
+    ws[f'R{current_row}'].border = border_thin
+    current_row += 1
+    
+    # FILA 3: Información de servicio
+    ws[f'A{current_row}'] = 'SERVICIO'
+    ws[f'A{current_row}'].font = header_font
+    ws[f'A{current_row}'].fill = header_fill
+    ws[f'A{current_row}'].alignment = center_alignment
+    ws[f'A{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'B{current_row}:C{current_row}')
+    ws[f'B{current_row}'] = header.get('servicio', '')
+    ws[f'B{current_row}'].font = cell_font
+    ws[f'B{current_row}'].alignment = cell_alignment
+    ws[f'B{current_row}'].border = border_thin
+    
+    ws[f'D{current_row}'] = 'ÁREA'
+    ws[f'D{current_row}'].font = header_font
+    ws[f'D{current_row}'].fill = header_fill
+    ws[f'D{current_row}'].alignment = center_alignment
+    ws[f'D{current_row}'].border = border_thin
+    
+    ws[f'E{current_row}'] = header.get('area', '')
+    ws[f'E{current_row}'].font = cell_font
+    ws[f'E{current_row}'].alignment = cell_alignment
+    ws[f'E{current_row}'].border = border_thin
+    
+    ws[f'F{current_row}'] = 'UCI'
+    ws[f'F{current_row}'].font = header_font
+    ws[f'F{current_row}'].fill = header_fill
+    ws[f'F{current_row}'].alignment = center_alignment
+    ws[f'F{current_row}'].border = border_thin
+    
+    ws[f'G{current_row}'] = header.get('uci', '')
+    ws[f'G{current_row}'].font = cell_font
+    ws[f'G{current_row}'].alignment = cell_alignment
+    ws[f'G{current_row}'].border = border_thin
+    
+    ws[f'H{current_row}'] = 'ELABORADO POR'
+    ws[f'H{current_row}'].font = header_font
+    ws[f'H{current_row}'].fill = header_fill
+    ws[f'H{current_row}'].alignment = center_alignment
+    ws[f'H{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'I{current_row}:J{current_row}')
+    ws[f'I{current_row}'] = header.get('elaboradoPor', '')
+    ws[f'I{current_row}'].font = cell_font
+    ws[f'I{current_row}'].alignment = cell_alignment
+    ws[f'I{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'K{current_row}:L{current_row}')
+    ws[f'K{current_row}'] = 'VERSIÓN:'
+    ws[f'K{current_row}'].font = Font(bold=True, size=8, name='Arial')
+    ws[f'K{current_row}'].alignment = center_alignment
+    ws[f'K{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'M{current_row}:N{current_row}')
+    ws[f'M{current_row}'] = header.get('version', '1')
+    ws[f'M{current_row}'].font = cell_font
+    ws[f'M{current_row}'].alignment = center_alignment
+    ws[f'M{current_row}'].border = border_thin
+    
+    ws[f'O{current_row}'] = 'DIA'
+    ws[f'O{current_row}'].font = Font(bold=True, size=8, name='Arial')
+    ws[f'O{current_row}'].alignment = center_alignment
+    ws[f'O{current_row}'].border = border_thin
+    
+    ws[f'P{current_row}'] = 'MES'
+    ws[f'P{current_row}'].font = Font(bold=True, size=8, name='Arial')
+    ws[f'P{current_row}'].alignment = center_alignment
+    ws[f'P{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'Q{current_row}:R{current_row}')
+    ws[f'Q{current_row}'] = 'AÑO'
+    ws[f'Q{current_row}'].font = Font(bold=True, size=8, name='Arial')
+    ws[f'Q{current_row}'].alignment = center_alignment
+    ws[f'Q{current_row}'].border = border_thin
+    current_row += 1
+    
+    # FILA 4: Proceso y equipo biomédico
+    ws[f'A{current_row}'] = 'PROCESO'
+    ws[f'A{current_row}'].font = header_font
+    ws[f'A{current_row}'].fill = header_fill
+    ws[f'A{current_row}'].alignment = center_alignment
+    ws[f'A{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'B{current_row}:J{current_row}')
+    ws[f'B{current_row}'] = ''
+    ws[f'B{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'K{current_row}:L{current_row}')
+    ws[f'K{current_row}'] = 'EQUIPO BIOMÉDICO'
+    ws[f'K{current_row}'].font = Font(bold=True, size=8, name='Arial')
+    ws[f'K{current_row}'].fill = header_fill
+    ws[f'K{current_row}'].alignment = center_alignment
+    ws[f'K{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'M{current_row}:N{current_row}')
+    ws[f'M{current_row}'] = header.get('equipoBiomedico', '')
+    ws[f'M{current_row}'].font = cell_font
+    ws[f'M{current_row}'].alignment = center_alignment
+    ws[f'M{current_row}'].border = border_thin
+    
+    # Fecha
+    fecha_emision = header.get('fechaEmision', '')
+    if fecha_emision:
+        try:
+            fecha_obj = datetime.strptime(fecha_emision, '%Y-%m-%d')
+            dia = fecha_obj.day
+            mes = fecha_obj.month
+            anio = fecha_obj.year
+        except:
+            dia = ''
+            mes = header.get('mes', '')
+            anio = header.get('año', '')
+    else:
+        dia = ''
+        mes = header.get('mes', '')
+        anio = header.get('año', '')
+    
+    ws[f'O{current_row}'] = dia
+    ws[f'O{current_row}'].font = cell_font
+    ws[f'O{current_row}'].alignment = center_alignment
+    ws[f'O{current_row}'].border = border_thin
+    
+    ws[f'P{current_row}'] = mes
+    ws[f'P{current_row}'].font = cell_font
+    ws[f'P{current_row}'].alignment = center_alignment
+    ws[f'P{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'Q{current_row}:R{current_row}')
+    ws[f'Q{current_row}'] = anio
+    ws[f'Q{current_row}'].font = cell_font
+    ws[f'Q{current_row}'].alignment = center_alignment
+    ws[f'Q{current_row}'].border = border_thin
+    current_row += 1
+    
+    # ENCABEZADOS DE LA TABLA (2 filas)
+    header_row1 = current_row
+    
+    # Primera fila de headers
+    ws.merge_cells(f'A{current_row}:A{current_row+1}')
+    ws[f'A{current_row}'] = 'PROCESO'
+    
+    ws.merge_cells(f'B{current_row}:B{current_row+1}')
+    ws[f'B{current_row}'] = 'SUBPROCESO'
+    
+    ws.merge_cells(f'C{current_row}:C{current_row+1}')
+    ws[f'C{current_row}'] = 'FALLA POTENCIAL DEL SUBPROCESO'
+    
+    ws.merge_cells(f'D{current_row}:D{current_row+1}')
+    ws[f'D{current_row}'] = 'EFECTO POTENCIAL DE LA FALLA'
+    
+    ws.merge_cells(f'E{current_row}:E{current_row+1}')
+    ws[f'E{current_row}'] = 'CAUSAS POTENCIALES'
+    
+    ws.merge_cells(f'F{current_row}:F{current_row+1}')
+    ws[f'F{current_row}'] = 'BARRERAS EXISTENTES'
+    
+    ws.merge_cells(f'G{current_row}:G{current_row+1}')
+    ws[f'G{current_row}'] = 'Severidad'
+    
+    ws.merge_cells(f'H{current_row}:H{current_row+1}')
+    ws[f'H{current_row}'] = 'Detectabilidad'
+    
+    ws.merge_cells(f'I{current_row}:I{current_row+1}')
+    ws[f'I{current_row}'] = 'Ocurrencia'
+    
+    ws.merge_cells(f'J{current_row}:K{current_row}')
+    ws[f'J{current_row}'] = 'RPN'
+    
+    ws.merge_cells(f'L{current_row}:L{current_row+1}')
+    ws[f'L{current_row}'] = 'ACCIONES RECOMENDADAS'
+    
+    ws.merge_cells(f'M{current_row}:M{current_row+1}')
+    ws[f'M{current_row}'] = 'ACCIONES TOMADAS'
+    
+    ws.merge_cells(f'N{current_row}:N{current_row+1}')
+    ws[f'N{current_row}'] = 'RESPONSABLE'
+    
+    # Aplicar estilos a la primera fila de headers
+    for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'L', 'M', 'N']:
+        cell = ws[f'{col}{current_row}']
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_alignment
+        cell.border = border_thin
+    
+    current_row += 1
+    
+    # Segunda fila de headers (subcolumnas de RPN)
+    ws[f'J{current_row}'] = 'TIPO DE RIESGO'
+    ws[f'J{current_row}'].font = Font(bold=True, size=8, name='Arial')
+    ws[f'J{current_row}'].fill = header_fill
+    ws[f'J{current_row}'].alignment = header_alignment
+    ws[f'J{current_row}'].border = border_thin
+    
+    ws[f'K{current_row}'] = 'RPN'
+    ws[f'K{current_row}'].font = Font(bold=True, size=8, name='Arial')
+    ws[f'K{current_row}'].fill = header_fill
+    ws[f'K{current_row}'].alignment = header_alignment
+    ws[f'K{current_row}'].border = border_thin
+    current_row += 1
+    
+    # DATOS DE LA TABLA
+    # Columnas: Proceso(0), Subproceso(1), Falla(2), Efecto(3), Severidad(4), 
+    # Causa(5), Ocurrencia(6), Barrera(7), Detectabilidad(8), RPN(9), TipoRiesgo(10), Acciones(11)
+    
+    for row_data in table_data:
+        # Asegurarse de que la fila tenga suficientes elementos
+        while len(row_data) < 12:
+            row_data.append('')
+        
+        # Proceso
+        ws[f'A{current_row}'] = row_data[0] if row_data[0] else ''
+        ws[f'A{current_row}'].font = cell_font
+        ws[f'A{current_row}'].alignment = cell_alignment
+        ws[f'A{current_row}'].border = border_thin
+        if row_data[0]:  # Si tiene valor, aplicar color de proceso
+            ws[f'A{current_row}'].fill = proceso_fill
+        
+        # Subproceso
+        ws[f'B{current_row}'] = row_data[1] if row_data[1] else ''
+        ws[f'B{current_row}'].font = cell_font
+        ws[f'B{current_row}'].alignment = cell_alignment
+        ws[f'B{current_row}'].border = border_thin
+        
+        # Falla Potencial
+        ws[f'C{current_row}'] = row_data[2] if row_data[2] else ''
+        ws[f'C{current_row}'].font = cell_font
+        ws[f'C{current_row}'].alignment = cell_alignment
+        ws[f'C{current_row}'].border = border_thin
+        
+        # Efecto Potencial
+        ws[f'D{current_row}'] = row_data[3] if row_data[3] else ''
+        ws[f'D{current_row}'].font = cell_font
+        ws[f'D{current_row}'].alignment = cell_alignment
+        ws[f'D{current_row}'].border = border_thin
+        
+        # Causas Potenciales
+        ws[f'E{current_row}'] = row_data[5] if len(row_data) > 5 and row_data[5] else ''
+        ws[f'E{current_row}'].font = cell_font
+        ws[f'E{current_row}'].alignment = cell_alignment
+        ws[f'E{current_row}'].border = border_thin
+        
+        # Barreras Existentes
+        ws[f'F{current_row}'] = row_data[7] if len(row_data) > 7 and row_data[7] else ''
+        ws[f'F{current_row}'].font = cell_font
+        ws[f'F{current_row}'].alignment = cell_alignment
+        ws[f'F{current_row}'].border = border_thin
+        
+        # Severidad
+        ws[f'G{current_row}'] = row_data[4] if len(row_data) > 4 and row_data[4] else ''
+        ws[f'G{current_row}'].font = cell_font
+        ws[f'G{current_row}'].alignment = center_alignment
+        ws[f'G{current_row}'].border = border_thin
+        
+        # Detectabilidad
+        ws[f'H{current_row}'] = row_data[8] if len(row_data) > 8 and row_data[8] else ''
+        ws[f'H{current_row}'].font = cell_font
+        ws[f'H{current_row}'].alignment = center_alignment
+        ws[f'H{current_row}'].border = border_thin
+        
+        # Ocurrencia
+        ws[f'I{current_row}'] = row_data[6] if len(row_data) > 6 and row_data[6] else ''
+        ws[f'I{current_row}'].font = cell_font
+        ws[f'I{current_row}'].alignment = center_alignment
+        ws[f'I{current_row}'].border = border_thin
+        
+        # Tipo de Riesgo
+        tipo_riesgo = row_data[10] if len(row_data) > 10 and row_data[10] else 'Bajo'
+        ws[f'J{current_row}'] = tipo_riesgo
+        ws[f'J{current_row}'].font = cell_font
+        ws[f'J{current_row}'].alignment = center_alignment
+        ws[f'J{current_row}'].border = border_thin
+        
+        # Color según tipo de riesgo
+        if tipo_riesgo == 'Crítico':
+            ws[f'J{current_row}'].fill = PatternFill(start_color="f8d7da", end_color="f8d7da", fill_type="solid")
+            ws[f'J{current_row}'].font = Font(color="721c24", bold=True, size=9, name='Arial')
+        elif tipo_riesgo == 'Alto':
+            ws[f'J{current_row}'].fill = PatternFill(start_color="fff3cd", end_color="fff3cd", fill_type="solid")
+            ws[f'J{current_row}'].font = Font(color="856404", bold=True, size=9, name='Arial')
+        elif tipo_riesgo == 'Medio':
+            ws[f'J{current_row}'].fill = PatternFill(start_color="d1ecf1", end_color="d1ecf1", fill_type="solid")
+            ws[f'J{current_row}'].font = Font(color="0c5460", bold=True, size=9, name='Arial')
+        else:  # Bajo
+            ws[f'J{current_row}'].fill = PatternFill(start_color="d4edda", end_color="d4edda", fill_type="solid")
+            ws[f'J{current_row}'].font = Font(color="155724", bold=True, size=9, name='Arial')
+        
+        # RPN
+        rpn_value = row_data[9] if len(row_data) > 9 and row_data[9] else 1
+        ws[f'K{current_row}'] = rpn_value
+        ws[f'K{current_row}'].font = Font(bold=True, size=9, name='Arial', color="FFFFFF")
+        ws[f'K{current_row}'].alignment = center_alignment
+        ws[f'K{current_row}'].border = border_thin
+        
+        # Color según RPN
+        try:
+            rpn_num = int(rpn_value) if rpn_value else 1
+            if rpn_num >= 100:
+                ws[f'K{current_row}'].fill = PatternFill(start_color="dc3545", end_color="dc3545", fill_type="solid")
+            elif rpn_num >= 50:
+                ws[f'K{current_row}'].fill = PatternFill(start_color="fd7e14", end_color="fd7e14", fill_type="solid")
+            elif rpn_num >= 20:
+                ws[f'K{current_row}'].fill = PatternFill(start_color="ffc107", end_color="ffc107", fill_type="solid")
+                ws[f'K{current_row}'].font = Font(bold=True, size=9, name='Arial', color="000000")
+            else:
+                ws[f'K{current_row}'].fill = PatternFill(start_color="28a745", end_color="28a745", fill_type="solid")
+        except:
+            ws[f'K{current_row}'].fill = PatternFill(start_color="28a745", end_color="28a745", fill_type="solid")
+        
+        # Acciones Recomendadas
+        ws[f'L{current_row}'] = row_data[11] if len(row_data) > 11 and row_data[11] else ''
+        ws[f'L{current_row}'].font = cell_font
+        ws[f'L{current_row}'].alignment = cell_alignment
+        ws[f'L{current_row}'].border = border_thin
+        
+        # Acciones Tomadas (vacío por ahora)
+        ws[f'M{current_row}'] = ''
+        ws[f'M{current_row}'].font = cell_font
+        ws[f'M{current_row}'].alignment = cell_alignment
+        ws[f'M{current_row}'].border = border_thin
+        
+        # Responsable (vacío por ahora)
+        ws[f'N{current_row}'] = ''
+        ws[f'N{current_row}'].font = cell_font
+        ws[f'N{current_row}'].alignment = cell_alignment
+        ws[f'N{current_row}'].border = border_thin
+        
+        current_row += 1
+    
+    # Ajustar anchos de columnas
+    column_widths = {
+        'A': 15,  # Proceso
+        'B': 15,  # Subproceso
+        'C': 25,  # Falla Potencial
+        'D': 25,  # Efecto Potencial
+        'E': 25,  # Causas
+        'F': 25,  # Barreras
+        'G': 10,  # Severidad
+        'H': 12,  # Detectabilidad
+        'I': 10,  # Ocurrencia
+        'J': 15,  # Tipo de Riesgo
+        'K': 8,   # RPN
+        'L': 30,  # Acciones Recomendadas
+        'M': 30,  # Acciones Tomadas
+        'N': 20,  # Responsable
+        'O': 8,   # DIA
+        'P': 8,   # MES
+        'Q': 8,   # AÑO (parte 1)
+        'R': 8    # AÑO (parte 2)
+    }
+    
+    for col, width in column_widths.items():
+        ws.column_dimensions[col].width = width
+    
+    # Ajustar altura de filas de header
+    ws.row_dimensions[header_row1].height = 30
+    ws.row_dimensions[header_row1 + 1].height = 20
+    
+    # Guardar en BytesIO
+    excel_file = BytesIO()
+    wb.save(excel_file)
+    excel_file.seek(0)
+    
+    return excel_file
+
+
+def export_modular_matrix_to_excel(matrix: AMFEMatrix) -> BytesIO:
+    """
+    Exportar una matriz AMFE modular a formato Excel con expansión inteligente de filas.
+    Cada falla se expande según el máximo de elementos (efectos, causas, barreras, acciones).
+    """
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "AMFE"
+    
+    # ==================== ESTILOS ====================
+    title_font = Font(bold=True, size=11, name='Arial')
+    title_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    
+    header_fill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
+    header_font = Font(bold=True, size=9, name='Arial')
+    header_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    
+    proceso_fill = PatternFill(start_color="C6E0B4", end_color="C6E0B4", fill_type="solid")
+    
+    cell_font = Font(size=9, name='Arial')
+    cell_alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
+    center_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    
+    border_thin = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+    
+    # Colores para RPN
+    rpn_colors = {
+        'bajo': PatternFill(start_color="92D050", end_color="92D050", fill_type="solid"),  # Verde
+        'medio': PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid"),  # Amarillo
+        'alto': PatternFill(start_color="FFC000", end_color="FFC000", fill_type="solid"),   # Naranja
+        'muy_alto': PatternFill(start_color="FF0000", end_color="FF0000", fill_type="solid")  # Rojo
+    }
+    
+    # ==================== OBTENER DATOS ====================
+    data = matrix.data
+    
+    # DEBUG: Imprimir estructura de datos
+    print(f"DEBUG - Matrix ID: {matrix.id}")
+    print(f"DEBUG - Matrix data keys: {data.keys()}")
+    print(f"DEBUG - Data type: {data.get('type', 'NO TYPE')}")
+    
+    header = data.get('header', {})
+    procesos = data.get('procesos', [])
+    
+    print(f"DEBUG - Number of procesos: {len(procesos)}")
+    if procesos:
+        print(f"DEBUG - First proceso: {procesos[0]}")
+    
+    current_row = 1
+    
+    # ==================== FILA 1: Fundación (A1:R1) ====================
+    ws.merge_cells(f'A{current_row}:R{current_row}')
+    cell = ws[f'A{current_row}']
+    cell.value = header.get('fundacion', 'Fundación Clínica Infantil Club Noel')
+    cell.font = title_font
+    cell.alignment = title_alignment
+    cell.border = border_thin
+    current_row += 1
+    
+    # ==================== FILA 2: Título y Metadatos ====================
+    ws.merge_cells(f'A{current_row}:J{current_row}')
+    ws[f'A{current_row}'] = 'Análisis de Modo de Fallos y Efectos (AMFE) de Equipos Biomédicos'
+    ws[f'A{current_row}'].font = Font(bold=True, size=10, name='Arial')
+    ws[f'A{current_row}'].alignment = center_alignment
+    ws[f'A{current_row}'].border = border_thin
+    
+    # Código
+    ws.merge_cells(f'K{current_row}:L{current_row}')
+    ws[f'K{current_row}'] = 'CÓDIGO:'
+    ws[f'K{current_row}'].font = Font(bold=True, size=9, name='Arial')
+    ws[f'K{current_row}'].alignment = center_alignment
+    ws[f'K{current_row}'].border = border_thin
+    
+    # Versión
+    ws[f'M{current_row}'] = 'VERSIÓN:'
+    ws[f'M{current_row}'].font = Font(bold=True, size=9, name='Arial')
+    ws[f'M{current_row}'].alignment = center_alignment
+    ws[f'M{current_row}'].border = border_thin
+    
+    ws[f'N{current_row}'] = header.get('version', '1')
+    ws[f'N{current_row}'].font = cell_font
+    ws[f'N{current_row}'].alignment = center_alignment
+    ws[f'N{current_row}'].border = border_thin
+    
+    # Página
+    ws[f'O{current_row}'] = 'PÁGINA:'
+    ws[f'O{current_row}'].font = Font(bold=True, size=9, name='Arial')
+    ws[f'O{current_row}'].alignment = center_alignment
+    ws[f'O{current_row}'].border = border_thin
+    
+    # Fecha
+    ws[f'P{current_row}'] = 'DE'
+    ws[f'P{current_row}'].font = Font(bold=True, size=9, name='Arial')
+    ws[f'P{current_row}'].alignment = center_alignment
+    ws[f'P{current_row}'].border = border_thin
+    
+    ws[f'Q{current_row}'] = 'MES'
+    ws[f'Q{current_row}'].font = Font(bold=True, size=9, name='Arial')
+    ws[f'Q{current_row}'].alignment = center_alignment
+    ws[f'Q{current_row}'].border = border_thin
+    
+    ws[f'R{current_row}'] = 'AÑO'
+    ws[f'R{current_row}'].font = Font(bold=True, size=9, name='Arial')
+    ws[f'R{current_row}'].alignment = center_alignment
+    ws[f'R{current_row}'].border = border_thin
+    current_row += 1
+    
+    # ==================== FILA 3: Servicio, Área, Elaborado Por ====================
+    ws[f'A{current_row}'] = 'SERVICIO'
+    ws[f'A{current_row}'].font = Font(bold=True, size=9, name='Arial')
+    ws[f'A{current_row}'].alignment = center_alignment
+    ws[f'A{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'B{current_row}:D{current_row}')
+    ws[f'B{current_row}'] = header.get('servicio', '')
+    ws[f'B{current_row}'].font = cell_font
+    ws[f'B{current_row}'].alignment = cell_alignment
+    ws[f'B{current_row}'].border = border_thin
+    
+    ws[f'E{current_row}'] = 'ÁREA'
+    ws[f'E{current_row}'].font = Font(bold=True, size=9, name='Arial')
+    ws[f'E{current_row}'].alignment = center_alignment
+    ws[f'E{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'F{current_row}:G{current_row}')
+    ws[f'F{current_row}'] = header.get('area', '')
+    ws[f'F{current_row}'].font = cell_font
+    ws[f'F{current_row}'].alignment = cell_alignment
+    ws[f'F{current_row}'].border = border_thin
+    
+    ws[f'H{current_row}'] = 'ELABORADO POR'
+    ws[f'H{current_row}'].font = Font(bold=True, size=9, name='Arial')
+    ws[f'H{current_row}'].alignment = center_alignment
+    ws[f'H{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'I{current_row}:N{current_row}')
+    ws[f'I{current_row}'] = header.get('elaboradoPor', '')
+    ws[f'I{current_row}'].font = cell_font
+    ws[f'I{current_row}'].alignment = cell_alignment
+    ws[f'I{current_row}'].border = border_thin
+    
+    # Fecha de emisión
+    fecha_emision = header.get('fechaEmision', '')
+    if fecha_emision:
+        try:
+            fecha_obj = datetime.strptime(fecha_emision, '%Y-%m-%d')
+            dia = str(fecha_obj.day)
+            mes = fecha_obj.strftime('%B')
+            año = str(fecha_obj.year)
+        except:
+            dia = ''
+            mes = ''
+            año = ''
+    else:
+        dia = ''
+        mes = ''
+        año = ''
+    
+    ws[f'P{current_row}'] = dia
+    ws[f'P{current_row}'].font = cell_font
+    ws[f'P{current_row}'].alignment = center_alignment
+    ws[f'P{current_row}'].border = border_thin
+    
+    ws[f'Q{current_row}'] = mes
+    ws[f'Q{current_row}'].font = cell_font
+    ws[f'Q{current_row}'].alignment = center_alignment
+    ws[f'Q{current_row}'].border = border_thin
+    
+    ws[f'R{current_row}'] = año
+    ws[f'R{current_row}'].font = cell_font
+    ws[f'R{current_row}'].alignment = center_alignment
+    ws[f'R{current_row}'].border = border_thin
+    current_row += 1
+    
+    # ==================== FILA 4: Proceso y Equipo ====================
+    ws[f'A{current_row}'] = 'PROCESO'
+    ws[f'A{current_row}'].font = Font(bold=True, size=9, name='Arial')
+    ws[f'A{current_row}'].alignment = center_alignment
+    ws[f'A{current_row}'].fill = proceso_fill
+    ws[f'A{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'B{current_row}:J{current_row}')
+    for col in ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']:
+        ws[f'{col}{current_row}'].border = border_thin
+        ws[f'{col}{current_row}'].fill = proceso_fill
+    
+    ws[f'K{current_row}'] = 'EQUIPO BIOMÉDICO'
+    ws[f'K{current_row}'].font = Font(bold=True, size=9, name='Arial')
+    ws[f'K{current_row}'].alignment = center_alignment
+    ws[f'K{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'L{current_row}:R{current_row}')
+    ws[f'L{current_row}'] = header.get('equipo', '')
+    ws[f'L{current_row}'].font = cell_font
+    ws[f'L{current_row}'].alignment = cell_alignment
+    ws[f'L{current_row}'].border = border_thin
+    current_row += 1
+    
+    # ==================== FILAS 5-6: HEADERS DOBLES ====================
+    header_row1 = current_row
+    
+    # Fila 5 (headers principales)
+    ws[f'A{header_row1}'] = 'PROCESO'
+    ws[f'B{header_row1}'] = 'SUBPROCESO'
+    ws[f'C{header_row1}'] = 'FALLA POTENCIAL DEL SUBPROCESO'
+    ws[f'D{header_row1}'] = 'EFECTO POTENCIAL DE LA FALLA'
+    ws[f'E{header_row1}'] = 'CAUSAS POTENCIALES'
+    ws[f'F{header_row1}'] = 'BARRERAS EXISTENTES'
+    
+    ws.merge_cells(f'G{header_row1}:I{header_row1}')
+    ws[f'G{header_row1}'] = 'EVALUACIÓN'
+    
+    ws.merge_cells(f'J{header_row1}:K{header_row1}')
+    ws[f'J{header_row1}'] = 'TIPO DE RIESGO'
+    
+    ws[f'L{header_row1}'] = 'ACCIONES RECOMENDADAS'
+    ws[f'M{header_row1}'] = 'ACCIONES TOMADAS'
+    ws[f'N{header_row1}'] = 'RESPONSABLE'
+    
+    # Fila 6 (sub-headers)
+    for col in ['A', 'B', 'C', 'D', 'E', 'F', 'L', 'M', 'N']:
+        ws.merge_cells(f'{col}{header_row1}:{col}{header_row1 + 1}')
+    
+    ws[f'G{header_row1 + 1}'] = 'Severidad'
+    ws[f'H{header_row1 + 1}'] = 'Detectabilidad'
+    ws[f'I{header_row1 + 1}'] = 'Ocurrencia'
+    ws[f'J{header_row1 + 1}'] = 'Tipo de Riesgo'
+    ws[f'K{header_row1 + 1}'] = 'RPN'
+    
+    # Aplicar estilos a headers
+    for row in [header_row1, header_row1 + 1]:
+        for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N']:
+            cell = ws[f'{col}{row}']
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+            cell.border = border_thin
+    
+    current_row = header_row1 + 2
+    
+    # ==================== DATOS: PROCESOS MODULARES ====================
+    for proceso in procesos:
+        proceso_nombre = proceso.get('nombre', '')
+        proceso_color = proceso.get('color', '#C6E0B4')
+        subprocesos = proceso.get('subprocesos', [])
+        
+        # Calcular cuántas filas ocupará este proceso
+        proceso_start_row = current_row
+        proceso_rows = 0
+        
+        for subproceso in subprocesos:
+            subproceso_nombre = subproceso.get('nombre', '')
+            fallas = subproceso.get('fallasPotenciales', [])
+            
+            subproceso_start_row = current_row
+            subproceso_rows = 0
+            
+            for falla in fallas:
+                # Calcular filas necesarias para esta falla (máximo de elementos)
+                num_efectos = len(falla.get('efectosPotenciales', []))
+                num_causas = len(falla.get('causasPotenciales', []))
+                num_barreras = len(falla.get('barrerasExistentes', []))
+                num_acciones_rec = len(falla.get('accionesRecomendadas', []))
+                num_acciones_tom = len(falla.get('accionesTomadas', []))
+                
+                falla_rows = max(num_efectos, num_causas, num_barreras, num_acciones_rec, num_acciones_tom, 1)
+                
+                falla_start_row = current_row
+                
+                # Escribir falla (merge vertical)
+                if falla_rows > 1:
+                    ws.merge_cells(f'C{falla_start_row}:C{falla_start_row + falla_rows - 1}')
+                ws[f'C{falla_start_row}'] = falla.get('descripcion', '')
+                ws[f'C{falla_start_row}'].font = cell_font
+                ws[f'C{falla_start_row}'].alignment = cell_alignment
+                
+                # Evaluación (merge vertical)
+                evaluacion = falla.get('evaluacion', {})
+                severidad = evaluacion.get('severidad', '')
+                detectabilidad = evaluacion.get('detectabilidad', '')
+                ocurrencia = evaluacion.get('ocurrencia', '')
+                rpn = evaluacion.get('rpn', '')
+                
+                # Determinar tipo de riesgo y color
+                if rpn:
+                    if rpn < 100:
+                        tipo_riesgo = 'Bajo'
+                        rpn_fill = rpn_colors['bajo']
+                    elif rpn < 200:
+                        tipo_riesgo = 'Medio'
+                        rpn_fill = rpn_colors['medio']
+                    elif rpn < 300:
+                        tipo_riesgo = 'Alto'
+                        rpn_fill = rpn_colors['alto']
+                    else:
+                        tipo_riesgo = 'Muy Alto'
+                        rpn_fill = rpn_colors['muy_alto']
+                else:
+                    tipo_riesgo = ''
+                    rpn_fill = None
+                
+                for col, value in [('G', severidad), ('H', detectabilidad), ('I', ocurrencia), ('J', tipo_riesgo), ('K', rpn)]:
+                    if falla_rows > 1:
+                        ws.merge_cells(f'{col}{falla_start_row}:{col}{falla_start_row + falla_rows - 1}')
+                    ws[f'{col}{falla_start_row}'] = value
+                    ws[f'{col}{falla_start_row}'].font = cell_font
+                    ws[f'{col}{falla_start_row}'].alignment = center_alignment
+                    if col in ['J', 'K'] and rpn_fill:
+                        ws[f'{col}{falla_start_row}'].fill = rpn_fill
+                
+                # Responsable (merge vertical)
+                if falla_rows > 1:
+                    ws.merge_cells(f'N{falla_start_row}:N{falla_start_row + falla_rows - 1}')
+                ws[f'N{falla_start_row}'] = falla.get('responsable', '')
+                ws[f'N{falla_start_row}'].font = cell_font
+                ws[f'N{falla_start_row}'].alignment = cell_alignment
+                
+                # Escribir efectos, causas, barreras, acciones (una por fila)
+                for i in range(falla_rows):
+                    row = falla_start_row + i
+                    
+                    # Efectos
+                    efectos = falla.get('efectosPotenciales', [])
+                    ws[f'D{row}'] = efectos[i]['descripcion'] if i < len(efectos) else ''
+                    ws[f'D{row}'].font = cell_font
+                    ws[f'D{row}'].alignment = cell_alignment
+                    ws[f'D{row}'].border = border_thin
+                    
+                    # Causas
+                    causas = falla.get('causasPotenciales', [])
+                    ws[f'E{row}'] = causas[i]['descripcion'] if i < len(causas) else ''
+                    ws[f'E{row}'].font = cell_font
+                    ws[f'E{row}'].alignment = cell_alignment
+                    ws[f'E{row}'].border = border_thin
+                    
+                    # Barreras
+                    barreras = falla.get('barrerasExistentes', [])
+                    ws[f'F{row}'] = barreras[i]['descripcion'] if i < len(barreras) else ''
+                    ws[f'F{row}'].font = cell_font
+                    ws[f'F{row}'].alignment = cell_alignment
+                    ws[f'F{row}'].border = border_thin
+                    
+                    # Acciones Recomendadas
+                    acciones_rec = falla.get('accionesRecomendadas', [])
+                    ws[f'L{row}'] = acciones_rec[i]['descripcion'] if i < len(acciones_rec) else ''
+                    ws[f'L{row}'].font = cell_font
+                    ws[f'L{row}'].alignment = cell_alignment
+                    ws[f'L{row}'].border = border_thin
+                    
+                    # Acciones Tomadas
+                    acciones_tom = falla.get('accionesTomadas', [])
+                    ws[f'M{row}'] = acciones_tom[i]['descripcion'] if i < len(acciones_tom) else ''
+                    ws[f'M{row}'].font = cell_font
+                    ws[f'M{row}'].alignment = cell_alignment
+                    ws[f'M{row}'].border = border_thin
+                    
+                    # Aplicar bordes a celdas merged
+                    for col in ['C', 'G', 'H', 'I', 'J', 'K', 'N']:
+                        ws[f'{col}{row}'].border = border_thin
+                
+                current_row += falla_rows
+                subproceso_rows += falla_rows
+            
+            # Merge vertical del subproceso
+            if subproceso_rows > 1:
+                ws.merge_cells(f'B{subproceso_start_row}:B{subproceso_start_row + subproceso_rows - 1}')
+            ws[f'B{subproceso_start_row}'] = subproceso_nombre
+            ws[f'B{subproceso_start_row}'].font = cell_font
+            ws[f'B{subproceso_start_row}'].alignment = cell_alignment
+            for i in range(subproceso_rows):
+                ws[f'B{subproceso_start_row + i}'].border = border_thin
+            
+            proceso_rows += subproceso_rows
+        
+        # Merge vertical del proceso
+        if proceso_rows > 1:
+            ws.merge_cells(f'A{proceso_start_row}:A{proceso_start_row + proceso_rows - 1}')
+        ws[f'A{proceso_start_row}'] = proceso_nombre
+        ws[f'A{proceso_start_row}'].font = Font(bold=True, size=9, name='Arial')
+        ws[f'A{proceso_start_row}'].alignment = center_alignment
+        
+        # Aplicar color de proceso
+        try:
+            color_hex = proceso_color.replace('#', '')
+            fill = PatternFill(start_color=color_hex, end_color=color_hex, fill_type="solid")
+        except:
+            fill = proceso_fill
+        
+        for i in range(proceso_rows):
+            ws[f'A{proceso_start_row + i}'].fill = fill
+            ws[f'A{proceso_start_row + i}'].border = border_thin
+    
+    # ==================== AJUSTAR ANCHOS DE COLUMNAS ====================
+    column_widths = {
+        'A': 15,  # Proceso
+        'B': 18,  # Subproceso
+        'C': 30,  # Falla Potencial
+        'D': 30,  # Efecto Potencial
+        'E': 30,  # Causas
+        'F': 30,  # Barreras
+        'G': 10,  # Severidad
+        'H': 12,  # Detectabilidad
+        'I': 10,  # Ocurrencia
+        'J': 12,  # Tipo de Riesgo
+        'K': 8,   # RPN
+        'L': 35,  # Acciones Recomendadas
+        'M': 35,  # Acciones Tomadas
+        'N': 20,  # Responsable
+    }
+    
+    for col, width in column_widths.items():
+        ws.column_dimensions[col].width = width
+    
+    # Ajustar altura de filas de header
+    ws.row_dimensions[header_row1].height = 30
+    ws.row_dimensions[header_row1 + 1].height = 20
+    
+    # Guardar en BytesIO
+    excel_file = BytesIO()
+    wb.save(excel_file)
+    excel_file.seek(0)
+    
+    return excel_file
