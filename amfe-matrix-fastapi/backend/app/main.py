@@ -15,10 +15,11 @@ app = FastAPI(debug=True)
 # Configuración de CORS más específica
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Permitir todos los orígenes temporalmente
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # Middleware para logging de requests

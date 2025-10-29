@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
+import bcrypt
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from fastapi import HTTPException, Depends, status
@@ -7,22 +7,26 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.models import User
 from app.schemas import UserCreate
 from app.database import get_db
+import os
 
 # Configuración JWT
-SECRET_KEY = "tu_clave_secreta_super_segura_aqui"  # En producción, usar variable de entorno
+SECRET_KEY = os.getenv("SECRET_KEY", "tu_clave_secreta_super_segura_aqui")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()
 
 def get_password_hash(password: str) -> str:
-    hashed = pwd_context.hash(password)
+    password_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password_bytes, salt)
     print(f"DEBUG: Hashing password '{password}' -> '{hashed[:20]}...'")
-    return hashed
+    return hashed.decode('utf-8')
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    result = pwd_context.verify(plain_password, hashed_password)
+    password_bytes = plain_password.encode('utf-8')
+    hashed_bytes = hashed_password.encode('utf-8')
+    result = bcrypt.checkpw(password_bytes, hashed_bytes)
     print(f"DEBUG: Verificando '{plain_password}' contra hash '{hashed_password[:20]}...' -> {result}")
     return result
 
