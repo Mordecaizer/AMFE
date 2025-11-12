@@ -502,6 +502,24 @@ body {
     color: white;
 }
 
+/* Badge RPN con colores según nivel de riesgo */
+.rpn-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.rpn-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
 .btn-small {
     padding: 5px 10px;
     font-size: 0.85em;

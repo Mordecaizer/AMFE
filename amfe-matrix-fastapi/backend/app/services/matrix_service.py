@@ -5,8 +5,10 @@ from typing import List
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
+from openpyxl.drawing.image import Image
 from io import BytesIO
 from datetime import datetime
+import os
 
 def get_matrices(db: Session, skip: int = 0, limit: int = 100) -> List[AMFEMatrix]:
     """Obtener todas las matrices AMFE"""
@@ -535,6 +537,28 @@ def export_modular_matrix_to_excel(matrix: AMFEMatrix) -> BytesIO:
     
     current_row = 1
     
+    # ==================== FILA 1: Logo Club Noel en A1 ====================
+    try:
+        # Obtener la ruta del logo
+        logo_path = os.path.join(os.path.dirname(__file__), '..', '..', 'assets', 'club.jpg')
+        if os.path.exists(logo_path):
+            # Crear objeto de imagen
+            img = Image(logo_path)
+            
+            # Ajustar tamaño de la imagen (altura de 2 filas aproximadamente)
+            # Reducir tamaño para que quepa bien en A1:A2
+            img.width = 80
+            img.height = 60
+            
+            # Insertar imagen en A1
+            ws.add_image(img, 'A1')
+            
+            # Ajustar altura de la fila 1
+            ws.row_dimensions[1].height = 45
+    except Exception as e:
+        # Si hay error con la imagen, continuar sin ella
+        print(f"No se pudo agregar el logo: {e}")
+    
     # ==================== FILA 1: Espacio en blanco ====================
     current_row += 1
     
@@ -631,7 +655,24 @@ def export_modular_matrix_to_excel(matrix: AMFEMatrix) -> BytesIO:
     ws[f'Q{current_row}'].border = border_thin
     current_row += 1
     
-    # ==================== FILA 4: Espacio ====================
+    # ==================== FILA 4: Valores de Fecha (DÍA, MES, AÑO) ====================
+    for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N']:
+        ws[f'{col}{current_row}'].border = border_thin
+    
+    ws[f'O{current_row}'] = dia
+    ws[f'O{current_row}'].font = cell_font
+    ws[f'O{current_row}'].alignment = center_alignment
+    ws[f'O{current_row}'].border = border_thin
+    
+    ws[f'P{current_row}'] = mes
+    ws[f'P{current_row}'].font = cell_font
+    ws[f'P{current_row}'].alignment = center_alignment
+    ws[f'P{current_row}'].border = border_thin
+    
+    ws[f'Q{current_row}'] = año
+    ws[f'Q{current_row}'].font = cell_font
+    ws[f'Q{current_row}'].alignment = center_alignment
+    ws[f'Q{current_row}'].border = border_thin
     current_row += 1
     
     # ==================== FILA 5: Información del Servicio ====================
@@ -757,26 +798,55 @@ def export_modular_matrix_to_excel(matrix: AMFEMatrix) -> BytesIO:
                 ocurrencia = evaluacion.get('ocurrencia', '')
                 rpn = evaluacion.get('rpn', '')
                 
-                # Tipo de riesgo
+                # Tipo de riesgo y colores (3 niveles: Alto/Medio/Bajo)
                 if rpn:
-                    if rpn >= 100:
-                        tipo_riesgo = 'Crítico'
-                    elif rpn >= 50:
+                    if rpn >= 80:
                         tipo_riesgo = 'Alto'
-                    elif rpn >= 25:
+                        rpn_fill = PatternFill(start_color="dc3545", end_color="dc3545", fill_type="solid")  # Rojo
+                        tipo_fill = PatternFill(start_color="f8d7da", end_color="f8d7da", fill_type="solid")
+                        tipo_font = Font(bold=True, size=9, name='Arial', color="721c24")
+                    elif rpn >= 40:
                         tipo_riesgo = 'Medio'
+                        rpn_fill = PatternFill(start_color="fd7e14", end_color="fd7e14", fill_type="solid")  # Naranja
+                        tipo_fill = PatternFill(start_color="ffe5d0", end_color="ffe5d0", fill_type="solid")
+                        tipo_font = Font(bold=True, size=9, name='Arial', color="8b4513")
                     else:
                         tipo_riesgo = 'Bajo'
+                        rpn_fill = PatternFill(start_color="28a745", end_color="28a745", fill_type="solid")  # Verde
+                        tipo_fill = PatternFill(start_color="d4edda", end_color="d4edda", fill_type="solid")
+                        tipo_font = Font(bold=True, size=9, name='Arial', color="155724")
                 else:
                     tipo_riesgo = ''
+                    rpn_fill = None
+                    tipo_fill = None
+                    tipo_font = cell_font
                 
-                # Merge evaluación y RPN
-                for col, value in [('G', severidad), ('H', detectabilidad), ('I', ocurrencia), ('J', rpn), ('K', tipo_riesgo)]:
+                # Merge evaluación y RPN con colores
+                for col, value in [('G', severidad), ('H', detectabilidad), ('I', ocurrencia)]:
                     if falla_rows > 1:
                         ws.merge_cells(f'{col}{falla_start_row}:{col}{falla_start_row + falla_rows - 1}')
                     ws[f'{col}{falla_start_row}'] = value
                     ws[f'{col}{falla_start_row}'].font = cell_font
                     ws[f'{col}{falla_start_row}'].alignment = center_alignment
+                
+                # Columna J (RPN) - con color de fondo
+                if falla_rows > 1:
+                    ws.merge_cells(f'J{falla_start_row}:J{falla_start_row + falla_rows - 1}')
+                ws[f'J{falla_start_row}'] = rpn
+                ws[f'J{falla_start_row}'].font = Font(bold=True, size=9, name='Arial', color="FFFFFF")
+                ws[f'J{falla_start_row}'].alignment = center_alignment
+                if rpn_fill:
+                    ws[f'J{falla_start_row}'].fill = rpn_fill
+                
+                # Columna K (Tipo de Riesgo) - con color de fondo
+                if falla_rows > 1:
+                    ws.merge_cells(f'K{falla_start_row}:K{falla_start_row + falla_rows - 1}')
+                ws[f'K{falla_start_row}'] = tipo_riesgo
+                if tipo_font:
+                    ws[f'K{falla_start_row}'].font = tipo_font
+                ws[f'K{falla_start_row}'].alignment = center_alignment
+                if tipo_fill:
+                    ws[f'K{falla_start_row}'].fill = tipo_fill
                 
                 # Responsable
                 if falla_rows > 1:

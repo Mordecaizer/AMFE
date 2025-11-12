@@ -73,16 +73,14 @@ const MatrixList = () => {
     };
 
     const getRPNColor = (rpn) => {
-        if (rpn >= 100) return '#dc3545'; // Crítico - Rojo (100-125)
-        if (rpn >= 50) return '#fd7e14';  // Alto - Naranja (50-99)
-        if (rpn >= 25) return '#ffc107';  // Medio - Amarillo (25-49)
-        return '#28a745'; // Bajo - Verde (1-24)
+        if (rpn >= 80) return '#dc3545';  // Alto - Rojo (80-125)
+        if (rpn >= 40) return '#fd7e14';  // Medio - Naranja (40-79)
+        return '#28a745'; // Bajo - Verde (1-39)
     };
 
     const getRPNLabel = (rpn) => {
-        if (rpn >= 100) return 'Crítico';
-        if (rpn >= 50) return 'Alto';
-        if (rpn >= 25) return 'Medio';
+        if (rpn >= 80) return 'Alto';
+        if (rpn >= 40) return 'Medio';
         return 'Bajo';
     };
 
@@ -211,11 +209,11 @@ const MatrixList = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {matrices.map(matrix => (
+                                    {matrices.map((matrix, index) => (
                                         <tr key={matrix.id}>
                                             <td>
                                                 <span className="font-semibold" style={{ color: 'var(--primary-color)' }}>
-                                                    #{matrix.id}
+                                                    #{index + 1}
                                                 </span>
                                             </td>
                                             <td>

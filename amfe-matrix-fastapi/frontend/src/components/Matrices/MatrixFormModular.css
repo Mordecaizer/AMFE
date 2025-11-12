@@ -69,6 +69,7 @@
 .form-group input[type="text"],
 .form-group input[type="date"],
 .form-group input[type="number"],
+.form-group select,
 .form-group textarea {
     width: 100%;
     padding: 10px;
@@ -77,12 +78,27 @@
     font-size: 14px;
     font-family: inherit;
     transition: border-color 0.3s;
+    background-color: white;
+}
+
+.form-group select {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+    padding-right: 40px;
 }
 
 .form-group input:focus,
+.form-group select:focus,
 .form-group textarea:focus {
     outline: none;
     border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 .form-group textarea {
@@ -234,16 +250,26 @@
 
 /* Evaluación */
 .evaluacion-section {
-    background-color: #e8f4f8;
-    padding: 15px;
-    border-radius: 6px;
+    background: linear-gradient(135deg, #e8f4f8 0%, #f0f8ff 100%);
+    padding: 20px;
+    border-radius: 8px;
     margin-bottom: 20px;
+    border: 1px solid #d4e9f2;
 }
 
 .evaluacion-section h5 {
     margin-top: 0;
     margin-bottom: 15px;
     color: #2c3e50;
+    font-size: 1.1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.evaluacion-section h5::before {
+    content: "📊";
+    font-size: 1.2em;
 }
 
 .evaluacion-grid {
@@ -252,11 +278,47 @@
     gap: 15px;
 }
 
+.evaluacion-section .form-group {
+    margin-bottom: 0;
+}
+
+.evaluacion-section .form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #34495e;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.evaluacion-section select {
+    background-color: #ffffff;
+    border: 2px solid #bdc3c7;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 15px;
+    padding: 12px;
+    transition: all 0.3s ease;
+}
+
+.evaluacion-section select:hover {
+    border-color: #3498db;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
+}
+
+.evaluacion-section select:focus {
+    border-color: #3498db;
+    background-color: #f8fbff;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
 .rpn-display {
-    background-color: #fff3cd !important;
+    background: linear-gradient(135deg, #fff3cd 0%, #fffaeb 100%) !important;
     font-weight: bold;
     color: #856404;
     text-align: center;
+    font-size: 16px;
+    border: 2px solid #ffc107 !important;
+    box-shadow: 0 2px 4px rgba(255, 193, 7, 0.2);
 }
 
 /* Botones */
