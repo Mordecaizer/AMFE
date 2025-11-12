@@ -26,9 +26,9 @@ amfe-matrix-fastapi/
 │   │   └── __pycache__/
 │   ├── 📄 alembic.ini               # Configuración de Alembic
 │   ├── 📄 create_admin_user.py      # Script crear admin
+│   ├── 📄 reset_admin_password.py   # Script resetear password
 │   ├── 📄 Dockerfile                # Imagen Docker backend
-│   ├── 📄 requirements.txt          # Dependencias Python
-│   └── 📄 verify_system.py          # Script de verificación
+│   └── 📄 requirements.txt          # Dependencias Python
 │
 ├── 📁 frontend/                       # 🌐 Aplicación React
 │   ├── 📁 node_modules/              # Dependencias npm (ignorado en git)
@@ -43,8 +43,7 @@ amfe-matrix-fastapi/
 │   │   │   │   ├── Login.js        # Formulario de login
 │   │   │   │   └── Register.js     # Formulario de registro
 │   │   │   ├── 📁 Matrices/
-│   │   │   │   ├── MatrixDetail.js          # Ver detalles de matriz
-│   │   │   │   ├── MatrixFormAdvancedHOT.js # ⭐ Handsontable Editor
+│   │   │   │   ├── MatrixFormModular.js     # ⭐ Editor Modular
 │   │   │   │   └── MatrixList.js            # Listado de matrices
 │   │   │   ├── Header.js           # Header de navegación
 │   │   │   └── RoleBasedRoute.js   # Rutas protegidas por rol
@@ -129,9 +128,8 @@ amfe-matrix-fastapi/
 ## 📈 Estadísticas del Proyecto
 
 ### Componentes React Activos
-- ✅ `MatrixFormAdvancedHOT.js` - Editor principal (Handsontable)
+- ✅ `MatrixFormModular.js` - Editor principal (Sistema Modular)
 - ✅ `MatrixList.js` - Listado de matrices
-- ✅ `MatrixDetail.js` - Detalles de matriz
 - ✅ `Login.js` / `Register.js` - Autenticación
 - ✅ `AdminPanel.js` - Administración
 - ✅ `Header.js` - Navegación

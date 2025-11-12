@@ -758,36 +758,45 @@ const MatrixFormModular = () => {
                                                     <div className="evaluacion-grid">
                                                         <div className="form-group">
                                                             <label>Severidad (1-5)</label>
-                                                            <input
-                                                                type="number"
-                                                                min="1"
-                                                                max="5"
+                                                            <select
                                                                 value={falla.evaluacion.severidad}
                                                                 onChange={(e) => actualizarEvaluacion(proceso.id, subproceso.id, falla.id, 'severidad', e.target.value)}
                                                                 required
-                                                            />
+                                                            >
+                                                                <option value="1">1</option>
+                                                                <option value="2">2</option>
+                                                                <option value="3">3</option>
+                                                                <option value="4">4</option>
+                                                                <option value="5">5</option>
+                                                            </select>
                                                         </div>
                                                         <div className="form-group">
                                                             <label>Detectabilidad (1-5)</label>
-                                                            <input
-                                                                type="number"
-                                                                min="1"
-                                                                max="5"
+                                                            <select
                                                                 value={falla.evaluacion.detectabilidad}
                                                                 onChange={(e) => actualizarEvaluacion(proceso.id, subproceso.id, falla.id, 'detectabilidad', e.target.value)}
                                                                 required
-                                                            />
+                                                            >
+                                                                <option value="1">1</option>
+                                                                <option value="2">2</option>
+                                                                <option value="3">3</option>
+                                                                <option value="4">4</option>
+                                                                <option value="5">5</option>
+                                                            </select>
                                                         </div>
                                                         <div className="form-group">
                                                             <label>Ocurrencia (1-5)</label>
-                                                            <input
-                                                                type="number"
-                                                                min="1"
-                                                                max="5"
+                                                            <select
                                                                 value={falla.evaluacion.ocurrencia}
                                                                 onChange={(e) => actualizarEvaluacion(proceso.id, subproceso.id, falla.id, 'ocurrencia', e.target.value)}
                                                                 required
-                                                            />
+                                                            >
+                                                                <option value="1">1</option>
+                                                                <option value="2">2</option>
+                                                                <option value="3">3</option>
+                                                                <option value="4">4</option>
+                                                                <option value="5">5</option>
+                                                            </select>
                                                         </div>
                                                         <div className="form-group">
                                                             <label>RPN (Calculado)</label>

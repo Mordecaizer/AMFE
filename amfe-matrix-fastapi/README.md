@@ -33,7 +33,7 @@ amfe-matrix-fastapi/
 │   ├── Dockerfile
 │   ├── requirements.txt            # openpyxl, fastapi, etc.
 │   ├── create_admin_user.py
-│   └── verify_system.py
+│   └── reset_admin_password.py
 ├── frontend/                        # 🌐 App React
 │   ├── src/
 │   │   ├── components/
@@ -43,9 +43,8 @@ amfe-matrix-fastapi/
 │   │   │   │   ├── Login.js
 │   │   │   │   └── Register.js
 │   │   │   ├── Matrices/
-│   │   │   │   ├── MatrixFormAdvancedHOT.js  # ⭐ Handsontable
-│   │   │   │   ├── MatrixList.js
-│   │   │   │   └── MatrixDetail.js
+│   │   │   │   ├── MatrixFormModular.js  # ⭐ Editor Modular
+│   │   │   │   └── MatrixList.js
 │   │   │   ├── Header.js
 │   │   │   └── RoleBasedRoute.js
 │   │   ├── context/
@@ -60,24 +59,10 @@ amfe-matrix-fastapi/
 │   ├── package.json                # handsontable v16.1.1
 │   └── Dockerfile
 ├── docker-compose.yml              # ⚙️ 3 servicios (frontend, backend, db)
-├── start_system.ps1                # 🚀 Script de inicio
-├── EXCEL_FORMAT_DOCUMENTATION.md   # 📄 Estructura del Excel
-├── RESUMEN_CAMBIOS_EXCEL.md        # 📝 Changelog Excel
-├── GUIA_PRUEBA_EXCEL.md            # 🧪 Guía de testing
-├── HANDSONTABLE_IMPLEMENTATION.md  # 📖 Documentación Handsontable
 └── README.md                       # 📖 Este archivo
 ```
 
 ## 🚀 Inicio Rápido
-
-### **Opción 1: Script Automatizado (Windows)**
-
-```powershell
-# Iniciar todo el sistema
-.\start_system.ps1
-```
-
-### **Opción 2: Comandos Manuales**
 
 ```bash
 # 1. Iniciar contenedores
@@ -236,9 +221,6 @@ docker-compose exec backend alembic revision --autogenerate -m "descripcion"
 
 # Aplicar migraciones
 docker-compose exec backend alembic upgrade head
-
-# Verificar sistema
-docker-compose exec backend python verify_system.py
 
 # Instalar nueva dependencia
 docker-compose exec backend pip install nueva-dependencia
