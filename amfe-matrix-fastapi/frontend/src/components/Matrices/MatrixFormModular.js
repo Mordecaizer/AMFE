@@ -405,7 +405,7 @@ const MatrixFormModular = () => {
             return;
         }
 
-        if (!header.servicio.trim() || !header.area.trim() || !header.elaboradoPor.trim() || !header.equipo.trim()) {
+        if (!header.servicio.trim() || !header.area.trim() || !header.elaboradoPor.trim() || !header.equipo.trim() || !header.modeloMarca.trim()) {
             alert('Todos los campos del encabezado son obligatorios');
             return;
         }

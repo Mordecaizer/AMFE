@@ -740,13 +740,12 @@ def export_modular_matrix_to_excel(matrix: AMFEMatrix) -> BytesIO:
     ws[f'N{current_row}'].fill = green_light_fill
     ws[f'N{current_row}'].border = border_thin
     
-    ws.merge_cells(f'O{current_row}:P{current_row}')
+    ws.merge_cells(f'O{current_row}:Q{current_row}')
     ws[f'O{current_row}'] = header.get('modeloMarca', '')
     ws[f'O{current_row}'].font = cell_font
     ws[f'O{current_row}'].alignment = center_alignment
     ws[f'O{current_row}'].border = border_thin
     ws[f'P{current_row}'].border = border_thin
-    
     ws[f'Q{current_row}'].border = border_thin
     current_row += 1
     
