@@ -80,7 +80,12 @@ const MatrixFormModular = () => {
             setMatrixDescription(matrix.description || '');
             
             const data = matrix.data;
-            setHeader(data.header);
+            // Asegurar que modeloMarca existe en el header
+            const headerWithDefaults = {
+                ...data.header,
+                modeloMarca: data.header.modeloMarca || ''
+            };
+            setHeader(headerWithDefaults);
             setProcesos(data.procesos);
             
             setLoading(false);
