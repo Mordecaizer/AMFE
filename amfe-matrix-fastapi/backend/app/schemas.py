@@ -81,14 +81,14 @@ class AccionTomada(ItemBase):
 
 class Evaluacion(BaseModel):
     """Evaluación de riesgo de una falla"""
-    severidad: int = Field(..., ge=1, le=10, description="Severidad (1-10)")
-    detectabilidad: int = Field(..., ge=1, le=10, description="Detectabilidad (1-10)")
-    ocurrencia: int = Field(..., ge=1, le=10, description="Ocurrencia (1-10)")
-    rpn: Optional[int] = Field(None, description="RPN calculado automáticamente")
+    severidad: int = Field(..., ge=1, le=5, description="Severidad (1-5)")
+    detectabilidad: int = Field(..., ge=1, le=5, description="Detectabilidad (1-5)")
+    ocurrencia: int = Field(..., ge=1, le=5, description="Ocurrencia (1-5)")
+    rpn: Optional[int] = Field(None, description="RPN calculado automáticamente (máx: 125)")
 
     @validator('rpn', always=True)
     def calcular_rpn(cls, v, values):
-        """Calcula RPN automáticamente como S × D × O"""
+        """Calcula RPN automáticamente como S × D × O (máximo 5×5×5 = 125)"""
         if 'severidad' in values and 'detectabilidad' in values and 'ocurrencia' in values:
             return values['severidad'] * values['detectabilidad'] * values['ocurrencia']
         return v

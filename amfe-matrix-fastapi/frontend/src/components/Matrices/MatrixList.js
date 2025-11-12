@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { getMatrices, deleteMatrix, downloadMatrixExcel, downloadModularMatrixExcel } from '../../services/api';
+import { getMatrices, deleteMatrix, downloadModularMatrixExcel } from '../../services/api';
 import Header from '../Header';
 
 const MatrixList = () => {
@@ -73,29 +73,45 @@ const MatrixList = () => {
     };
 
     const getRPNColor = (rpn) => {
-        if (rpn >= 200) return '#dc3545'; // Crítico - Rojo
-        if (rpn >= 100) return '#fd7e14'; // Alto - Naranja
-        if (rpn >= 50) return '#ffc107';  // Medio - Amarillo
-        return '#28a745'; // Bajo - Verde
+        if (rpn >= 100) return '#dc3545'; // Crítico - Rojo (100-125)
+        if (rpn >= 50) return '#fd7e14';  // Alto - Naranja (50-99)
+        if (rpn >= 25) return '#ffc107';  // Medio - Amarillo (25-49)
+        return '#28a745'; // Bajo - Verde (1-24)
     };
 
     const getRPNLabel = (rpn) => {
-        if (rpn >= 200) return 'Crítico';
-        if (rpn >= 100) return 'Alto';
-        if (rpn >= 50) return 'Medio';
+        if (rpn >= 100) return 'Crítico';
+        if (rpn >= 50) return 'Alto';
+        if (rpn >= 25) return 'Medio';
         return 'Bajo';
+    };
+
+    // Obtener el RPN máximo de todas las fallas de la matriz
+    const getMaxRPN = (matrix) => {
+        if (!matrix.data?.procesos) return 1;
+        
+        let maxRPN = 1;
+        matrix.data.procesos.forEach(proceso => {
+            proceso.subprocesos?.forEach(subproceso => {
+                subproceso.fallasPotenciales?.forEach(falla => {
+                    if (falla.evaluacion?.rpn > maxRPN) {
+                        maxRPN = falla.evaluacion.rpn;
+                    }
+                });
+            });
+        });
+        return maxRPN;
+    };
+
+    // Obtener el equipo de la matriz modular
+    const getEquipo = (matrix) => {
+        return matrix.data?.header?.equipo || 'No especificado';
     };
 
     const handleDownloadExcel = async (matrix) => {
         try {
-            const isModular = matrix.data?.type === 'modular';
-            const filename = `AMFE_${isModular ? 'Modular_' : ''}${matrix.name.replace(/ /g, '_')}_${matrix.id}.xlsx`;
-            
-            if (isModular) {
-                await downloadModularMatrixExcel(matrix.id, filename);
-            } else {
-                await downloadMatrixExcel(matrix.id, filename);
-            }
+            const filename = `AMFE_${matrix.name.replace(/ /g, '_')}_${matrix.id}.xlsx`;
+            await downloadModularMatrixExcel(matrix.id, filename);
         } catch (err) {
             console.error('Error downloading matrix:', err);
             if (isMountedRef.current) {
@@ -146,21 +162,12 @@ const MatrixList = () => {
                             </h2>
                         </div>
                         <div style={{ display: 'flex', gap: '1rem' }}>
-                            <Link to="/matrices/modular" className="btn btn-success">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <rect x="3" y="3" width="7" height="7"></rect>
-                                    <rect x="14" y="3" width="7" height="7"></rect>
-                                    <rect x="14" y="14" width="7" height="7"></rect>
-                                    <rect x="3" y="14" width="7" height="7"></rect>
-                                </svg>
-                                Nueva Matriz Modular
-                            </Link>
-                            <Link to="/matrices/advanced" className="btn btn-primary">
+                            <Link to="/matrices/new" className="btn btn-primary">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <line x1="12" y1="5" x2="12" y2="19"></line>
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
                                 </svg>
-                                Nueva Matriz Handsontable
+                                Nueva Matriz AMFE
                             </Link>
                         </div>
                     </div>
@@ -183,19 +190,10 @@ const MatrixList = () => {
                             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
                                 <Link to="/matrices/modular" className="btn btn-success">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <rect x="3" y="3" width="7" height="7"></rect>
-                                        <rect x="14" y="3" width="7" height="7"></rect>
-                                        <rect x="14" y="14" width="7" height="7"></rect>
-                                        <rect x="3" y="14" width="7" height="7"></rect>
-                                    </svg>
-                                    Matriz Modular
-                                </Link>
-                                <Link to="/matrices/advanced" className="btn btn-primary">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <line x1="12" y1="5" x2="12" y2="19"></line>
                                         <line x1="5" y1="12" x2="19" y2="12"></line>
                                     </svg>
-                                    Matriz Handsontable
+                                    Nueva Matriz AMFE
                                 </Link>
                             </div>
                         </div>
@@ -207,8 +205,7 @@ const MatrixList = () => {
                                         <th>ID</th>
                                         <th>Nombre</th>
                                         <th>Equipo/Proceso</th>
-                                        <th>RPN Actual</th>
-                                        <th>Estado</th>
+                                        <th>RPN Máximo</th>
                                         <th>Actualizado</th>
                                         <th>Acciones</th>
                                     </tr>
@@ -233,14 +230,14 @@ const MatrixList = () => {
                                             </td>
                                             <td>
                                                 <div className="text-sm" style={{ fontWeight: '500' }}>
-                                                    {matrix.data?.equipment || 'No especificado'}
+                                                    {getEquipo(matrix)}
                                                 </div>
                                             </td>
                                             <td>
                                                 <span 
                                                     className="rpn-badge"
                                                     style={{ 
-                                                        background: getRPNColor(matrix.data?.rpn || 1),
+                                                        background: getRPNColor(getMaxRPN(matrix)),
                                                         color: 'white',
                                                         padding: '4px 8px',
                                                         borderRadius: '12px',
@@ -248,46 +245,8 @@ const MatrixList = () => {
                                                         fontWeight: 'bold'
                                                     }}
                                                 >
-                                                    {matrix.data?.rpn || 1} - {getRPNLabel(matrix.data?.rpn || 1)}
+                                                    {getMaxRPN(matrix)} - {getRPNLabel(getMaxRPN(matrix))}
                                                 </span>
-                                            </td>
-                                            <td>
-                                                <div>
-                                                    {matrix.data?.action_taken ? (
-                                                        <span style={{ 
-                                                            background: '#d4edda',
-                                                            color: '#155724',
-                                                            padding: '3px 8px',
-                                                            borderRadius: '12px',
-                                                            fontSize: '0.75rem',
-                                                            fontWeight: '500'
-                                                        }}>
-                                                            Acción Implementada
-                                                        </span>
-                                                    ) : matrix.data?.recommended_action ? (
-                                                        <span style={{ 
-                                                            background: '#fff3cd',
-                                                            color: '#856404',
-                                                            padding: '3px 8px',
-                                                            borderRadius: '12px',
-                                                            fontSize: '0.75rem',
-                                                            fontWeight: '500'
-                                                        }}>
-                                                            Acción Planificada
-                                                        </span>
-                                                    ) : (
-                                                        <span style={{ 
-                                                            background: '#f8d7da',
-                                                            color: '#721c24',
-                                                            padding: '3px 8px',
-                                                            borderRadius: '12px',
-                                                            fontSize: '0.75rem',
-                                                            fontWeight: '500'
-                                                        }}>
-                                                            Análisis Inicial
-                                                        </span>
-                                                    )}
-                                                </div>
                                             </td>
                                             <td>
                                                 <div className="text-sm" style={{ color: 'var(--gray-600)' }}>
@@ -299,17 +258,7 @@ const MatrixList = () => {
                                                     <Link 
                                                         to={`/matrices/${matrix.id}`} 
                                                         className="btn btn-sm btn-secondary"
-                                                        title="Ver detalles"
-                                                    >
-                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                                            <circle cx="12" cy="12" r="3"></circle>
-                                                        </svg>
-                                                    </Link>
-                                                    <Link 
-                                                        to={matrix.data?.type === 'modular' ? `/matrices/modular/${matrix.id}` : `/matrices/advanced/${matrix.id}`}
-                                                        className="btn btn-sm btn-secondary"
-                                                        title="Editar"
+                                                        title="Ver/Editar"
                                                     >
                                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>

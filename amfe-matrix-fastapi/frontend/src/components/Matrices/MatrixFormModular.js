@@ -757,33 +757,33 @@ const MatrixFormModular = () => {
                                                     <h5>Evaluación de Riesgo</h5>
                                                     <div className="evaluacion-grid">
                                                         <div className="form-group">
-                                                            <label>Severidad (1-10)</label>
+                                                            <label>Severidad (1-5)</label>
                                                             <input
                                                                 type="number"
                                                                 min="1"
-                                                                max="10"
+                                                                max="5"
                                                                 value={falla.evaluacion.severidad}
                                                                 onChange={(e) => actualizarEvaluacion(proceso.id, subproceso.id, falla.id, 'severidad', e.target.value)}
                                                                 required
                                                             />
                                                         </div>
                                                         <div className="form-group">
-                                                            <label>Detectabilidad (1-10)</label>
+                                                            <label>Detectabilidad (1-5)</label>
                                                             <input
                                                                 type="number"
                                                                 min="1"
-                                                                max="10"
+                                                                max="5"
                                                                 value={falla.evaluacion.detectabilidad}
                                                                 onChange={(e) => actualizarEvaluacion(proceso.id, subproceso.id, falla.id, 'detectabilidad', e.target.value)}
                                                                 required
                                                             />
                                                         </div>
                                                         <div className="form-group">
-                                                            <label>Ocurrencia (1-10)</label>
+                                                            <label>Ocurrencia (1-5)</label>
                                                             <input
                                                                 type="number"
                                                                 min="1"
-                                                                max="10"
+                                                                max="5"
                                                                 value={falla.evaluacion.ocurrencia}
                                                                 onChange={(e) => actualizarEvaluacion(proceso.id, subproceso.id, falla.id, 'ocurrencia', e.target.value)}
                                                                 required
