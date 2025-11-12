@@ -73,14 +73,14 @@ const MatrixList = () => {
     };
 
     const getRPNColor = (rpn) => {
-        if (rpn >= 80) return '#dc3545';  // Alto - Rojo (80-125)
-        if (rpn >= 40) return '#fd7e14';  // Medio - Naranja (40-79)
-        return '#28a745'; // Bajo - Verde (1-39)
+        if (rpn >= 33) return '#dc3545';  // Alto - Rojo (33-125)
+        if (rpn >= 13) return '#fd7e14';  // Medio - Naranja (13-32)
+        return '#28a745'; // Bajo - Verde (1-12)
     };
 
     const getRPNLabel = (rpn) => {
-        if (rpn >= 80) return 'Alto';
-        if (rpn >= 40) return 'Medio';
+        if (rpn >= 33) return 'Alto';
+        if (rpn >= 13) return 'Medio';
         return 'Bajo';
     };
 

@@ -537,7 +537,8 @@ def export_modular_matrix_to_excel(matrix: AMFEMatrix) -> BytesIO:
     
     current_row = 1
     
-    # ==================== FILA 1: Logo Club Noel en A1 ====================
+    # ==================== FILA 1: Título Principal (B1:K1) + Logo en A1 ====================
+    # Logo Club Noel en A1
     try:
         # Obtener la ruta del logo
         logo_path = os.path.join(os.path.dirname(__file__), '..', '..', 'assets', 'club.jpg')
@@ -545,8 +546,7 @@ def export_modular_matrix_to_excel(matrix: AMFEMatrix) -> BytesIO:
             # Crear objeto de imagen
             img = Image(logo_path)
             
-            # Ajustar tamaño de la imagen (altura de 2 filas aproximadamente)
-            # Reducir tamaño para que quepa bien en A1:A2
+            # Ajustar tamaño de la imagen para que quepa en A1
             img.width = 80
             img.height = 60
             
@@ -559,16 +559,16 @@ def export_modular_matrix_to_excel(matrix: AMFEMatrix) -> BytesIO:
         # Si hay error con la imagen, continuar sin ella
         print(f"No se pudo agregar el logo: {e}")
     
-    # ==================== FILA 1: Espacio en blanco ====================
-    current_row += 1
-    
-    # ==================== FILA 2: Título Principal (A2:K2) ====================
-    ws.merge_cells(f'A{current_row}:K{current_row}')
-    cell = ws[f'A{current_row}']
+    # Título en B1:K1 (dejando A1 para el logo)
+    ws.merge_cells(f'B{current_row}:K{current_row}')
+    cell = ws[f'B{current_row}']
     cell.value = "Fundación Clínica Infantil Club Noel"
     cell.font = title_font
     cell.alignment = title_alignment
     cell.border = border_thin
+    
+    # Borde para A1 (celda del logo)
+    ws[f'A{current_row}'].border = border_thin
     
     # Columnas L-Q: CÓDIGO, VERSIÓN
     ws[f'L{current_row}'] = 'CÓDIGO:'
@@ -602,7 +602,7 @@ def export_modular_matrix_to_excel(matrix: AMFEMatrix) -> BytesIO:
     ws[f'Q{current_row}'].border = border_thin
     current_row += 1
     
-    # ==================== FILA 3: Subtítulo (A3:K3) + FECHA ====================
+    # ==================== FILA 2: Subtítulo (A2:K2) + FECHA ====================
     ws.merge_cells(f'A{current_row}:K{current_row}')
     cell = ws[f'A{current_row}']
     cell.value = "Análisis de Modo de Fallos y Efectos (AMFE) de Equipos Biomédicos"
@@ -655,10 +655,14 @@ def export_modular_matrix_to_excel(matrix: AMFEMatrix) -> BytesIO:
     ws[f'Q{current_row}'].border = border_thin
     current_row += 1
     
-    # ==================== FILA 4: Valores de Fecha (DÍA, MES, AÑO) ====================
-    for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N']:
+    # ==================== FILA 3: Valores de Fecha (A3:N3 combinadas) ====================
+    # Combinar celdas A3:N3 (vacías con bordes)
+    ws.merge_cells(f'A{current_row}:N{current_row}')
+    ws[f'A{current_row}'].border = border_thin
+    for col in ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N']:
         ws[f'{col}{current_row}'].border = border_thin
     
+    # Valores de fecha en O3, P3, Q3
     ws[f'O{current_row}'] = dia
     ws[f'O{current_row}'].font = cell_font
     ws[f'O{current_row}'].alignment = center_alignment
@@ -723,10 +727,27 @@ def export_modular_matrix_to_excel(matrix: AMFEMatrix) -> BytesIO:
     ws[f'J{current_row}'].border = border_thin
     ws[f'K{current_row}'].border = border_thin
     
+    ws.merge_cells(f'L{current_row}:M{current_row}')
     ws[f'L{current_row}'] = header.get('equipo', 'VENTILADOR DE ALTA FRECUENCIA')
     ws[f'L{current_row}'].font = cell_font
     ws[f'L{current_row}'].alignment = center_alignment
     ws[f'L{current_row}'].border = border_thin
+    ws[f'M{current_row}'].border = border_thin
+    
+    ws[f'N{current_row}'] = 'MODELO/MARCA'
+    ws[f'N{current_row}'].font = header_font
+    ws[f'N{current_row}'].alignment = center_alignment
+    ws[f'N{current_row}'].fill = green_light_fill
+    ws[f'N{current_row}'].border = border_thin
+    
+    ws.merge_cells(f'O{current_row}:P{current_row}')
+    ws[f'O{current_row}'] = header.get('modeloMarca', '')
+    ws[f'O{current_row}'].font = cell_font
+    ws[f'O{current_row}'].alignment = center_alignment
+    ws[f'O{current_row}'].border = border_thin
+    ws[f'P{current_row}'].border = border_thin
+    
+    ws[f'Q{current_row}'].border = border_thin
     current_row += 1
     
     # ==================== FILA 6: Headers de la Tabla ====================
@@ -744,7 +765,10 @@ def export_modular_matrix_to_excel(matrix: AMFEMatrix) -> BytesIO:
         ('K', 'TIPO DE\nRIESGO'),
         ('L', 'ACCIONES\nRECOMENDATAS'),
         ('M', 'ACCIONES\nTOMADAS'),
-        ('N', 'RESPONSABLE')
+        ('N', 'RESPONSABLE'),
+        ('O', ''),
+        ('P', ''),
+        ('Q', '')
     ]
     
     for col, text in headers:
@@ -800,12 +824,12 @@ def export_modular_matrix_to_excel(matrix: AMFEMatrix) -> BytesIO:
                 
                 # Tipo de riesgo y colores (3 niveles: Alto/Medio/Bajo)
                 if rpn:
-                    if rpn >= 80:
+                    if rpn >= 33:
                         tipo_riesgo = 'Alto'
                         rpn_fill = PatternFill(start_color="dc3545", end_color="dc3545", fill_type="solid")  # Rojo
                         tipo_fill = PatternFill(start_color="f8d7da", end_color="f8d7da", fill_type="solid")
                         tipo_font = Font(bold=True, size=9, name='Arial', color="721c24")
-                    elif rpn >= 40:
+                    elif rpn >= 13:
                         tipo_riesgo = 'Medio'
                         rpn_fill = PatternFill(start_color="fd7e14", end_color="fd7e14", fill_type="solid")  # Naranja
                         tipo_fill = PatternFill(start_color="ffe5d0", end_color="ffe5d0", fill_type="solid")

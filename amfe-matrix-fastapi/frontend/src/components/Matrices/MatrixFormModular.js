@@ -25,6 +25,7 @@ const MatrixFormModular = () => {
         area: '',
         elaboradoPor: '',
         equipo: '',
+        modeloMarca: '',
         fechaEmision: new Date().toISOString().split('T')[0]
     });
 
@@ -554,6 +555,16 @@ const MatrixFormModular = () => {
                                     value={header.equipo}
                                     onChange={(e) => handleHeaderChange('equipo', e.target.value)}
                                     placeholder="Ej: BOMBA DE NUTRICIÓN"
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Modelo/Marca *</label>
+                                <input
+                                    type="text"
+                                    value={header.modeloMarca}
+                                    onChange={(e) => handleHeaderChange('modeloMarca', e.target.value)}
+                                    placeholder="Ej: Fresenius Kabi / Agilia"
                                     required
                                 />
                             </div>
