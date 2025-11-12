@@ -130,6 +130,7 @@ class MatrixHeaderModular(BaseModel):
     area: str
     elaboradoPor: str
     equipo: str
+    modeloMarca: Optional[str] = None
     fechaEmision: Optional[str] = None
 
 class MatrixModularData(BaseModel):
