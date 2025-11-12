@@ -1,18 +1,17 @@
 # 🏥 Fundación Clínica Infantil Club Noel - Sistema AMFE
 
-Sistema profesional de gestión de matrices AMFE (Análisis de Modo y Efecto de Fallas) para equipos biomédicos, desarrollado con FastAPI, React, Handsontable y PostgreSQL.
+Sistema profesional de gestión de matrices AMFE (Análisis de Modo y Efecto de Fallas) para equipos biomédicos, desarrollado con FastAPI, React y PostgreSQL.
 
 ## 🌟 Características Principales
 
-- ✅ **Matrices AMFE Avanzadas** con Handsontable (interfaz tipo Excel)
-- ✅ **Exportación a Excel** con formato profesional y estructura hospitalaria
-- ✅ **Cálculo automático de RPN** (Severidad × Ocurrencia × Detectabilidad)
-- ✅ **Clasificación de riesgos** con código de colores (Crítico/Alto/Medio/Bajo)
+- ✅ **Matrices AMFE Modulares** con estructura jerárquica completa
+- ✅ **Exportación a Excel** con formato institucional y logo Club Noel
+- ✅ **Cálculo automático de RPN** (Severidad × Ocurrencia × Detectabilidad) escala 1-5
+- ✅ **Clasificación de riesgos** con código de colores (Alto/Medio/Bajo)
 - ✅ **Persistencia en base de datos** PostgreSQL con CRUD completo
-- ✅ **Autenticación JWT** con control de roles
-- ✅ **Copiar/Pegar desde Excel** con validación de datos
-- ✅ **Navegación por teclado** (Tab, Enter, flechas)
-- ✅ **Menú contextual** (click derecho)
+- ✅ **Autenticación JWT** con control de roles (Admin/User)
+- ✅ **Interfaz moderna y responsive** con React 18
+- ✅ **Dockerizado** para fácil instalación y despliegue
 
 ## 🏗️ Estructura del Proyecto
 
@@ -62,18 +61,149 @@ amfe-matrix-fastapi/
 └── README.md                       # 📖 Este archivo
 ```
 
-## 🚀 Inicio Rápido
+## 🚀 Instalación y Despliegue
+
+### **Requisitos Previos**
+
+Antes de comenzar, asegúrate de tener instalado:
+
+1. **Docker Desktop** (Windows/Mac) o **Docker Engine** (Linux)
+   - Descargar desde: https://www.docker.com/products/docker-desktop
+   - Versión mínima: 20.10+
+
+2. **Docker Compose**
+   - Incluido en Docker Desktop
+   - Para Linux: https://docs.docker.com/compose/install/
+
+3. **Git** (opcional, para clonar el repositorio)
+   - Descargar desde: https://git-scm.com/downloads
+
+### **Paso 1: Obtener el Código**
+
+#### Opción A: Clonar con Git
+```bash
+git clone https://github.com/Mordecaizer/AMFE.git
+cd AMFE/amfe-matrix-fastapi
+```
+
+#### Opción B: Descargar ZIP
+1. Ve a https://github.com/Mordecaizer/AMFE
+2. Clic en "Code" → "Download ZIP"
+3. Extrae el archivo y navega a la carpeta `amfe-matrix-fastapi`
+
+### **Paso 2: Configurar Variables de Entorno**
+
+Crea un archivo `.env` en la carpeta `backend/` con el siguiente contenido:
+
+```env
+# Base de datos
+POSTGRES_USER=amfe_user
+POSTGRES_PASSWORD=amfe_password_2024
+POSTGRES_DB=amfe_db
+DATABASE_URL=postgresql://amfe_user:amfe_password_2024@db:5432/amfe_db
+
+# Seguridad
+SECRET_KEY=tu-clave-secreta-super-segura-cambiala
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
+
+⚠️ **IMPORTANTE**: Cambia `SECRET_KEY` por una clave única y segura en producción.
+
+### **Paso 3: Construir e Iniciar los Contenedores**
+
+Abre una terminal en la carpeta del proyecto y ejecuta:
 
 ```bash
-# 1. Iniciar contenedores
+# Construir e iniciar todos los servicios
 docker-compose up --build -d
-
-# 2. Crear usuario administrador
-docker-compose exec backend python create_admin_user.py
-
-# 3. Verificar que todo esté corriendo
-docker-compose ps
 ```
+
+Esto creará y arrancará 3 contenedores:
+- **backend**: API FastAPI (puerto 5000)
+- **frontend**: Aplicación React (puerto 3000)
+- **db**: Base de datos PostgreSQL (puerto 5432)
+
+### **Paso 4: Crear Usuario Administrador**
+
+Una vez que los contenedores estén corriendo, crea el usuario admin:
+
+```bash
+docker-compose exec backend python create_admin_user.py
+```
+
+Credenciales por defecto:
+- **Usuario**: `admin`
+- **Contraseña**: `admin123`
+
+### **Paso 5: Verificar la Instalación**
+
+1. **Frontend**: Abre http://localhost:3000 en tu navegador
+2. **Backend API**: Verifica http://localhost:5000/docs (Swagger UI)
+3. **Estado de contenedores**: 
+   ```bash
+   docker-compose ps
+   ```
+
+Deberías ver los 3 contenedores en estado "Up".
+
+### **Paso 6: Iniciar Sesión**
+
+1. Accede a http://localhost:3000
+2. Ingresa con las credenciales:
+   - Usuario: `admin`
+   - Contraseña: `admin123`
+3. ¡Listo! Ya puedes crear matrices AMFE
+
+---
+
+## 🛑 Detener y Reiniciar el Sistema
+
+### Detener los contenedores (sin perder datos)
+```bash
+docker-compose stop
+```
+
+### Iniciar los contenedores nuevamente
+```bash
+docker-compose start
+```
+
+### Detener y eliminar contenedores (mantiene volúmenes/datos)
+```bash
+docker-compose down
+```
+
+### Detener y eliminar TODO (⚠️ BORRA LA BASE DE DATOS)
+```bash
+docker-compose down -v
+```
+
+### Reiniciar un servicio específico
+```bash
+docker-compose restart backend
+docker-compose restart frontend
+docker-compose restart db
+```
+
+---
+
+## 🔄 Actualizar la Aplicación
+
+Si hay una nueva versión disponible:
+
+```bash
+# 1. Detener los contenedores
+docker-compose down
+
+# 2. Obtener la última versión
+git pull origin main
+
+# 3. Reconstruir con la nueva versión
+docker-compose up --build -d
+```
+
+---
 
 ### **URLs del Sistema**
 - 🌐 **Frontend**: http://localhost:3000
@@ -91,26 +221,27 @@ Contraseña: admin123
 ## 🛠️ Stack Tecnológico
 
 ### Backend
-- **FastAPI** 0.104.1 - Framework web moderno
+- **FastAPI** - Framework web moderno y rápido
 - **PostgreSQL** - Base de datos relacional
-- **SQLAlchemy** - ORM
-- **Alembic** - Migraciones
-- **JWT** - Autenticación
+- **SQLAlchemy** - ORM para Python
+- **Alembic** - Migraciones de base de datos
+- **JWT** - Autenticación segura con tokens
 - **bcrypt** - Hashing de contraseñas
-- **openpyxl** 3.1.5 - Generación de archivos Excel
+- **openpyxl** - Generación de archivos Excel
+- **Pillow** - Procesamiento de imágenes (logo en Excel)
 - **Python** 3.9
 
 ### Frontend
-- **React** 18 - UI framework
-- **Handsontable** 16.1.1 - Tabla tipo Excel
-- **@handsontable/react** 16.1.1 - Wrapper React
-- **React Router** 6 - Navegación
+- **React** 18 - Librería UI moderna
+- **React Router** 6 - Navegación entre páginas
 - **Axios** - Cliente HTTP
+- **Context API** - Manejo de estado global
 - **Node.js** 18
 
 ### Infraestructura
-- **Docker** + **Docker Compose** - Containerización
-- **CORS** habilitado para desarrollo
+- **Docker** - Contenedorización
+- **Docker Compose** - Orquestación de contenedores
+- **Nginx** - Servidor web (opcional para producción)
 
 ## 📋 Funcionalidades Detalladas
 
@@ -121,49 +252,47 @@ Contraseña: admin123
 - ✅ Panel de administración para gestión de usuarios (solo Admin)
 - ✅ Registro de nuevos usuarios (solo Admin)
 
-### 📊 Matrices AMFE Avanzadas
-- ✅ **Interfaz Handsontable**: Edición tipo Excel con 1000+ filas sin lag
-- ✅ **12 Columnas**: Proceso, Subproceso, Falla Potencial, Efecto Potencial, Severidad, Causa Potencial, Ocurrencia, Barrera Existente, Detectabilidad, RPN, Tipo de Riesgo, Acciones Recomendadas
-- ✅ **Cálculo automático RPN**: RPN = Severidad × Ocurrencia × Detectabilidad
-- ✅ **Validación de datos**: 1-10 para Severidad/Ocurrencia/Detectabilidad
-- ✅ **Clasificación automática**:
-  - Crítico: RPN ≥ 100 (rojo)
-  - Alto: RPN 50-99 (naranja)
-  - Medio: RPN 20-49 (amarillo)
-  - Bajo: RPN < 20 (verde)
-- ✅ **Navegación por teclado**:
-  - `Tab`: Siguiente celda
-  - `Shift+Tab`: Celda anterior
-  - `Enter`: Siguiente fila
-  - `Flechas`: Navegar en cualquier dirección
-- ✅ **Copy/Paste**: Compatible con Excel (Ctrl+C / Ctrl+V)
-- ✅ **Menú contextual**: Click derecho → Insertar/Eliminar filas
-- ✅ **Agregar/Eliminar filas**: Botones dedicados
-- ✅ **Guardar/Editar/Eliminar**: CRUD completo
+### 📊 Matrices AMFE Modulares
 
-### 📥 Exportación a Excel Profesional
+- ✅ **Estructura jerárquica completa**: Proceso → Subproceso → Falla → Efecto → Causa → Barrera
+- ✅ **Formulario modular intuitivo**: Agregar/eliminar elementos con botones "+/-"
+- ✅ **Cálculo automático RPN**: RPN = Severidad × Detectabilidad × Ocurrencia
+- ✅ **Escala 1-5**: Validación para cada parámetro (Severidad, Detectabilidad, Ocurrencia)
+- ✅ **Selectores dropdown**: Previene errores de entrada de datos
+- ✅ **Clasificación automática con colores**:
+  - 🔴 **Alto**: RPN 33-125 (Rojo)
+  - 🟠 **Medio**: RPN 13-32 (Naranja)
+  - 🟢 **Bajo**: RPN 1-12 (Verde)
+- ✅ **Múltiples elementos por falla**: Varios efectos, causas, barreras y acciones
+- ✅ **Campos personalizables**: Acciones recomendadas, tomadas, responsables
+- ✅ **Guardar/Editar/Eliminar**: CRUD completo para todas las matrices
 
-Genera archivos `.xlsx` con estructura completa:
+### 📥 Exportación a Excel con Formato Institucional
 
-**Estructura del Excel:**
-- **Fila 1**: Fundación Clínica Infantil Club Noel (header principal)
-- **Fila 2**: Título del AMFE + Código, Página, DE
-- **Fila 3**: Servicio, Área, UCI, Elaborado Por, Versión, Día, Mes, Año
-- **Fila 4**: Proceso, Equipo Biomédico, Fecha parseada
-- **Filas 5-6**: Headers de tabla (doble fila con merged cells)
-  - RPN dividido en: "TIPO DE RIESGO" y "RPN"
-- **Fila 7+**: Datos de la matriz con:
-  - Proceso con fondo verde (#C6E0B4)
-  - Tipo de Riesgo coloreado (Crítico/Alto/Medio/Bajo)
-  - RPN coloreado según valor (rojo/naranja/amarillo/verde)
+Genera archivos `.xlsx` profesionales con la estructura exacta de Club Noel:
+
+**Características del Excel:**
+- 🖼️ **Logo Club Noel** en la celda A1
+- 📋 **Fila 1-2**: Título institucional y metadata (código, versión, página)
+- 📋 **Fila 3**: Subtítulo del AMFE + Fecha de emisión
+- 📋 **Fila 4**: Valores de fecha (Día, Mes, Año)
+- 📋 **Fila 5**: Información del servicio (Servicio, Área, Elaborado por, Equipo)
+- 📋 **Fila 6**: Headers de la tabla de datos
+- 📊 **Fila 7+**: Datos jerárquicos con:
+  - Proceso con fondo verde claro (#C6E0B4)
+  - Merge automático de celdas para estructura jerárquica
+  - **Colores RPN automáticos**:
+    - 🔴 Rojo: RPN 33-125 (Alto)
+    - 🟠 Naranja: RPN 13-32 (Medio)
+    - 🟢 Verde: RPN 1-12 (Bajo)
+  - Tipo de Riesgo con fondos de colores claros
   - Bordes en todas las celdas
-  - Fuente Arial, tamaños apropiados
+  - Fuente Arial tamaños profesionales
 
-**Características:**
-- ✅ 18 columnas (A-R)
-- ✅ Celdas merged estratégicamente
-- ✅ Parseo automático de fechas (YYYY-MM-DD → día/mes/año)
-- ✅ Código de colores Bootstrap
+**Formato técnico:**
+- ✅ 14 columnas (A-N)
+- ✅ Celdas combinadas estratégicamente
+- ✅ Parseo automático de fechas
 - ✅ Anchos de columna optimizados
 - ✅ Wrap text habilitado
 - ✅ Compatible con Excel 2013+, Google Sheets, LibreOffice
@@ -268,23 +397,24 @@ Ver **[Guía de Pruebas Excel](./docs/GUIA_PRUEBA_EXCEL.md)** para una guía com
 
 ## 🎨 Colores y Estilos
 
-### Tipo de Riesgo
+### Tipo de Riesgo (RPN)
 
-| Tipo | Fondo | Texto | Condición |
-|------|-------|-------|-----------|
-| Crítico | #f8d7da | #721c24 | RPN ≥ 100 |
-| Alto | #fff3cd | #856404 | RPN 50-99 |
-| Medio | #d1ecf1 | #0c5460 | RPN 20-49 |
-| Bajo | #d4edda | #155724 | RPN < 20 |
+| Nivel | Rango RPN | Color | Aplicación |
+|-------|-----------|-------|------------|
+| 🟢 **Bajo** | 1-12 | Verde (#28a745) | Badge web + Celdas Excel |
+| 🟠 **Medio** | 13-32 | Naranja (#fd7e14) | Badge web + Celdas Excel |
+| 🔴 **Alto** | 33-125 | Rojo (#dc3545) | Badge web + Celdas Excel |
 
-### RPN en Excel
+### Colores en Excel
 
-| Rango | Fondo | Texto |
-|-------|-------|-------|
-| ≥100 | #dc3545 (rojo) | Blanco |
-| 50-99 | #fd7e14 (naranja) | Blanco |
-| 20-49 | #ffc107 (amarillo) | Negro |
-| <20 | #28a745 (verde) | Blanco |
+**Columna J (RPN):**
+- Fondo del color correspondiente
+- Texto blanco en negrita
+
+**Columna K (Tipo de Riesgo):**
+- Bajo: Fondo verde claro (#d4edda) + texto verde oscuro (#155724)
+- Medio: Fondo naranja claro (#ffe5d0) + texto marrón (#8b4513)
+- Alto: Fondo rojo claro (#f8d7da) + texto rojo oscuro (#721c24)
 
 ## 🔧 Solución de Problemas
 
@@ -318,11 +448,29 @@ docker-compose up --build frontend
 3. Verificar endpoint en Swagger: http://localhost:5000/docs
 4. Reiniciar backend: `docker-compose restart backend`
 
-### Handsontable: página lenta
+### Logo no aparece en Excel
 
-- ✅ Ya optimizado con virtualización
-- ✅ Maneja 1000+ filas sin lag
-- Si persiste: Verificar que `licenseKey: 'non-commercial-and-evaluation'` esté presente
+1. Verificar que Pillow esté instalado:
+   ```bash
+   docker-compose exec backend pip list | findstr Pillow
+   ```
+2. Si no está instalado:
+   ```bash
+   docker-compose exec backend pip install Pillow
+   docker-compose restart backend
+   ```
+
+### Error "Port already in use"
+
+Si los puertos 3000, 5000 o 5432 están ocupados:
+
+1. Detener otros servicios que usen esos puertos
+2. O modificar `docker-compose.yml` para usar otros puertos:
+   ```yaml
+   ports:
+     - "3001:3000"  # Frontend en puerto 3001
+     - "5001:8000"  # Backend en puerto 5001
+   ```
 
 ## 📊 Base de Datos
 
@@ -343,26 +491,59 @@ docker-compose up --build frontend
 - created_at
 - updated_at
 
-**Esquema JSON de `data`:**
+**Esquema JSON de `data` (Matrices Modulares):**
 ```json
 {
   "header": {
-    "fundacion": "string",
-    "servicio": "string",
-    "area": "string",
-    "uci": "string",
-    "elaboradoPor": "string",
-    "equipoBiomedico": "string",
-    "codigo": "string",
-    "version": "string",
-    "pagina": "string",
-    "fechaEmision": "YYYY-MM-DD",
-    "mes": "string",
-    "año": "string"
+    "fundacion": "Fundación Clínica Infantil Club Noel",
+    "servicio": "UCI",
+    "area": "Cuidados Intensivos",
+    "elaboradoPor": "Dr. Juan Pérez",
+    "equipo": "Ventilador Mecánico",
+    "codigo": "AMFE-001",
+    "version": "1.0",
+    "pagina": "1/1",
+    "fechaEmision": "2025-11-12"
   },
-  "tableData": [
-    ["proceso", "subproceso", "falla", "efecto", sev, "causa", ocu, "barrera", det, rpn, "tipo", "acciones"],
-    ...
+  "procesos": [
+    {
+      "id": 1234567890,
+      "nombre": "VENTILACIÓN",
+      "subprocesos": [
+        {
+          "id": 1234567891,
+          "nombre": "Inicio de ventilación",
+          "fallasPotenciales": [
+            {
+              "id": 1234567892,
+              "descripcion": "Fallo en tubería de oxígeno",
+              "efectosPotenciales": [
+                {"id": 1234567893, "descripcion": "Hipoxia del paciente"}
+              ],
+              "causasPotenciales": [
+                {"id": 1234567894, "descripcion": "Desconexión accidental"}
+              ],
+              "barrerasExistentes": [
+                {"id": 1234567895, "descripcion": "Alarma de desconexión"}
+              ],
+              "evaluacion": {
+                "severidad": 5,
+                "detectabilidad": 2,
+                "ocurrencia": 4,
+                "rpn": 40
+              },
+              "accionesRecomendadas": [
+                {"id": 1234567896, "descripcion": "Mejorar sistema de fijación"}
+              ],
+              "accionesTomadas": [
+                {"id": 1234567897, "descripcion": "Instalado clip de seguridad"}
+              ],
+              "responsable": "Ing. Biomédico"
+            }
+          ]
+        }
+      ]
+    }
   ]
 }
 ```
@@ -412,8 +593,6 @@ SECRET_KEY=your-super-secret-key-here
 
 Proyecto desarrollado para **Fundación Clínica Infantil Club Noel**.
 
-**Handsontable**: Licencia no comercial y evaluación (`non-commercial-and-evaluation`). Para uso comercial, adquirir licencia en https://handsontable.com/pricing
-
 ---
 
 ## 🙏 Créditos
@@ -422,12 +601,20 @@ Desarrollado con ❤️ para la Fundación Clínica Infantil Club Noel
 
 **Tecnologías principales:**
 - FastAPI
-- React
-- Handsontable
+- React 18
 - PostgreSQL
 - Docker
+- openpyxl
 
 ---
 
-**Última actualización**: 28 de octubre de 2024
-**Versión**: 2.0
+## 📞 Soporte
+
+Para reportar problemas o solicitar nuevas funcionalidades:
+- **GitHub Issues**: https://github.com/Mordecaizer/AMFE/issues
+- **Email**: [tu-email@ejemplo.com]
+
+---
+
+**Última actualización**: 11 de noviembre de 2025
+**Versión**: 3.0
